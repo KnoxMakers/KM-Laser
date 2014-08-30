@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <name>Path to Gcode (KMLaser)</name>
+    <id>org.knoxmakers.filter.kmlaser</id>
+	<dependency type="executable" location="extensions">kmlaser.py</dependency>
+	<dependency type="executable" location="extensions">inkex.py</dependency>
+	<param name='active-tab' type="notebook">
+
+		<page name='laser-values' _gui-text='Laser Options'>
+			<param name='preset-settings' type='enum' _gui-text="Preset Settings:">
+				<_item value="custom">Custom Settings</_item>
+				<_item value="wood-engrave">ENGRAVE Wood</_item>
+				<_item value="3mm-plywood-cut">CUT 3mm Plywood</_item>
+				<_item value="6mm-plywood-cut">CUT 6mm Plywood</_item>
+				<_item value="wood-engrave">ENGRAVE Acrylic</_item>
+				<_item value="3mm-acrylic-cut">CUT 3mm Acrylic</_item>
+				<_item value="6mm-acrylic-cut">CUT 6mm Acrylic</_item>
+			</param>
+			<param name='feed-rate' type="int" _gui-text="Custom Feed Rate:" min="50" max="2500" precision="5">400</param>
+			<param name='pulse-rate' type="int" _gui-text="Custom Pulse Rate:" min="1" max="10000">34</param>
+
+			<param name="directory" type="string" _gui-text="Directory:">/home</param>
+			<param name="filename" type="string" _gui-text="Filename: ">output.ngc</param>
+			<param name="add-numeric-suffix-to-filename" type="boolean" _gui-text="Add numeric suffix to filename">true</param>
+
+		</page>
+
+		<page name='kmlaser-about' _gui-text='About'>
+			<_param name="about" type="description">
+KMLaser Inkscape Extension
+ - Minimal interface to turn paths into gcode for laser cutting
+
+Based on Gcodetools ver. 1.7 at:
+http://www.cnc-club.ru/gcodetools
+
+Produces gcode for a LinuxCNC based Laser using the laser configuration at:
+https://github.com/bjj/2x_laser
+
+Laser power is controlled by M3/M5 commands and "magic Z".
+
+This extension was hacked together for Knox Makers at:
+http://knoxmakers.org
+
+The preset settings are for a specific laser cutter.
+To alter these settings for your own use you should change the process_settings() function in kmlaser.py.
+</_param>	
+
+		</page>
+
+	</param>	
+    <effect>
+		<effects-menu>
+			<submenu _name="Laser Tools"/>
+		</effects-menu>
+		<object-type>path</object-type>
+    </effect>
+    <script>
+        <command reldir="extensions" interpreter="python">kmlaser.py</command>
+    </script>
+</inkscape-extension>
