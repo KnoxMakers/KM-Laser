@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-    <name>Path to Gcode (KMLaser)</name>
+    <name>Path to Gcode</name>
     <id>org.knoxmakers.filter.kmlaser</id>
-	<dependency type="executable" location="extensions">kmlaser.py</dependency>
+	<dependency type="executable" location="extensions">kmlaser_ptg.py</dependency>
 	<dependency type="executable" location="extensions">inkex.py</dependency>
 	<param name='active-tab' type="notebook">
 
@@ -26,12 +26,12 @@
 
 		</page>
 
-		<page name='kmlaser-about' _gui-text='About'>
-			<_param name="about" type="description">
-KMLaser Inkscape Extension
- - Minimal interface to turn paths into gcode for laser cutting
+		<page name='kmlaser-about' _gui-text='Bundle'>
+			<_param name="bundle-about" type="description">
+Path to Gcode 
+KMLaser Inkscape Bundle
 
-Based on Gcodetools ver. 1.7 at:
+Based on part of Gcodetools ver. 1.7 at:
 http://www.cnc-club.ru/gcodetools
 
 Produces gcode for a LinuxCNC based Laser using the laser configuration at:
@@ -39,11 +39,11 @@ https://github.com/bjj/2x_laser
 
 Laser power is controlled by M3/M5 commands and "magic Z".
 
-This extension was hacked together for Knox Makers at:
+This extension bundle was hacked together for Knox Makers at:
 http://knoxmakers.org
 
 The preset settings are for a specific laser cutter.
-To alter these settings for your own use you should change the process_settings() function in kmlaser.py.
+To alter these settings for your own use you should change the process_settings() function in kmlaser_ptg.py.
 </_param>	
 
 		</page>
@@ -51,11 +51,11 @@ To alter these settings for your own use you should change the process_settings(
 	</param>	
     <effect>
 		<effects-menu>
-			<submenu _name="Laser Tools"/>
+			<submenu _name="KM Laser"/>
 		</effects-menu>
 		<object-type>path</object-type>
     </effect>
     <script>
-        <command reldir="extensions" interpreter="python">kmlaser.py</command>
+        <command reldir="extensions" interpreter="python">kmlaser_ptg.py</command>
     </script>
 </inkscape-extension>

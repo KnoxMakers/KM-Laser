@@ -4586,10 +4586,13 @@ class Gcodetools(inkex.Effect):
 					if "d" not in path.keys() : 
 						self.error(_("Warning: One or more paths do not have 'd' parameter, try to Ungroup (Ctrl+Shift+G) and Object to Path (Ctrl+Shift+C)!"),"selection_contains_objects_that_are_not_paths")
 						continue					
-					csp = cubicsuperpath.parsePath(path.get("d"))
-					csp = self.apply_transforms(path, csp)
-					id_ = path.get("id")
-					
+					try:
+						csp = cubicsuperpath.parsePath(path.get("d"))
+						csp = self.apply_transforms(path, csp)
+						id_ = path.get("id")
+					except:
+						pass
+
 					def set_comment(match, path):
 						if match.group(1) in path.keys() :
 							return path.get(match.group(1))
@@ -6624,7 +6627,6 @@ class Gcodetools(inkex.Effect):
 			# Get all Gcodetools data from the scene.
 			self.get_info()
 			if self.process_settings():
-
 				if self.orientation_points == {} :
 					#self.error(_("Orientation points have not been defined! A default set of orientation points has been automatically added."),"warning")
 					self.orientation( self.layers[min(1,len(self.layers)-1)] )		
