@@ -10,7 +10,9 @@ __Installation__
 Copy all the files to the Inkscape extensions directory and then restart Inkscape.
 
 Linux:   $HOME/.config/inkscape/extensions
+
 Mac:     /Applications/Inkscape.app/Contents/Resources/extensions/
+
 Windows: (Program files)\Inkscape\share\extensions\ 
 
 === 
