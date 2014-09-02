@@ -4609,43 +4609,44 @@ class Gcodetools(inkex.Effect):
 						csp = cubicsuperpath.parsePath(path.get("d"))
 						csp = self.apply_transforms(path, csp)
 						id_ = path.get("id")
-					except:
-						pass
 
-					def set_comment(match, path):
-						if match.group(1) in path.keys() :
-							return path.get(match.group(1))
-						else: 
-							return "None"
-					if self.options.comment_gcode != "" :
-						comment = re.sub("\[([A-Za-z_\-\:]+)\]", partial(set_comment, path=path), self.options.comment_gcode)
-						comment = comment.replace(":newline:","\n") 
-						comment = gcode_comment_str(comment)
-					else:
-						comment = ""
-					if self.options.comment_gcode_from_properties :
-						tags = get_path_properties(path)
-						for tag in tags :
-							comment += gcode_comment_str("%s: %s"%(tag,tags[tag]))
-
-					style = simplestyle.parseStyle(path.get("style"))
-					colors[id_] = simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000")
-					if path.get("dxfpoint") == "1":
-						tmp_curve=self.transform_csp(csp, layer)
-						x=tmp_curve[0][0][0][0]
-						y=tmp_curve[0][0][0][1]
-						print_("got dxfpoint (scaled) at (%f,%f)" % (x,y))
-						dxfpoints += [[x,y]]
-					else:
-						
-						zd,zs = self.Zcoordinates[layer][1],	self.Zcoordinates[layer][0]
-						c = 1. - float(sum(colors[id_]))/255/3
-						curves += 	[
+						def set_comment(match, path):
+							if match.group(1) in path.keys() :
+								return path.get(match.group(1))
+							else: 
+								return "None"
+						if self.options.comment_gcode != "" :
+							comment = re.sub("\[([A-Za-z_\-\:]+)\]", partial(set_comment, path=path), self.options.comment_gcode)
+							comment = comment.replace(":newline:","\n") 
+							comment = gcode_comment_str(comment)
+						else:
+							comment = ""
+						if self.options.comment_gcode_from_properties :
+							tags = get_path_properties(path)
+							for tag in tags :
+								comment += gcode_comment_str("%s: %s"%(tag,tags[tag]))
+	
+						style = simplestyle.parseStyle(path.get("style"))
+						colors[id_] = simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000")
+						if path.get("dxfpoint") == "1":
+							tmp_curve=self.transform_csp(csp, layer)
+							x=tmp_curve[0][0][0][0]
+							y=tmp_curve[0][0][0][1]
+							print_("got dxfpoint (scaled) at (%f,%f)" % (x,y))
+							dxfpoints += [[x,y]]
+						else:
+							
+							zd,zs = self.Zcoordinates[layer][1],	self.Zcoordinates[layer][0]
+							c = 1. - float(sum(colors[id_]))/255/3
+							curves += 	[
 										 [  
 										 	[id_, depth_func(c,zd,zs), comment],
 										 	[ self.parse_curve([subpath], layer) for subpath in csp  ]
 										 ]
 									]
+					except:
+						pass
+
 #				for c in curves : 
 #					print_(c)
 				dxfpoints=sort_dxfpoints(dxfpoints)
