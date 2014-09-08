@@ -57,6 +57,8 @@ http://www.cnc-club.ru/gcodetools
 Produces gcode for a LinuxCNC based Laser using the laser configuration at:
 https://github.com/bjj/2x_laser
 
+Laser power is controlled by M3/M5 commands and "magic Z".
+
 This extension bundle was hacked together for Knox Makers at:
 http://knoxmakers.org
 
