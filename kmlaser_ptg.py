@@ -3228,9 +3228,9 @@ class Gcodetools(inkex.Effect):
             pass
 
 
-        feedrate = self.options.feedrate
-        pulserate = self.options.pulserate
-        laserpower = self.options.laserpower
+        feedrate = int(self.options.feedrate)
+        pulserate = int(self.options.pulserate)
+        laserpower = round(float(self.options.laserpower),2)
         
         if feedrate < MINFEEDRATE or feedrate > MAXFEEDRATE:
             self.error("Feed Rate is outside of the allowed range [" + str(MINFEEDRATE) + "-" + str(MAXFEEDRATE) + "].")
