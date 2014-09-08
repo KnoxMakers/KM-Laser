@@ -4514,7 +4514,6 @@ class Gcodetools(inkex.Effect):
             for point in points:
                 gcode +="(drilling dxfpoint)\nG00 Z%f\nG00 X%f Y%f\nG01 Z%f F%f\nG04 P%f\nG00 Z%f\n" % (self.options.Zsafe,point[0],point[1],self.Zcoordinates[layer][1],self.tools[layer][0]["penetration feed"],0.2,self.options.Zsafe) 
 #			print_(("got dxfpoints array=",points))
-<<<<<<< HEAD
             return gcode
 
         def get_path_properties(node, recursive=True, tags={inkex.addNS('desc','svg'):"Description",inkex.addNS('title','svg'):"Title"} ) :
@@ -4601,94 +4600,6 @@ class Gcodetools(inkex.Effect):
                             ]
                     except:
                         pass
-=======
-			return gcode
-		
-		def get_path_properties(node, recursive=True, tags={inkex.addNS('desc','svg'):"Description",inkex.addNS('title','svg'):"Title"} ) :
-			res = {}
-			done = False
-			root = self.document.getroot()
-			while not done and node != root :
-				for i in node.getchildren():
-					if i.tag in tags:
-						res[tags[i.tag]] = i.text
-					done = True	
-				node =	node.getparent()
-			return res
-
-		if self.selected_paths == {} and self.options.auto_select_paths:
-			paths=self.paths
-			#self.error(_("No paths are selected! Trying to work on all available paths."),"warning")
-		else :
-			paths = self.selected_paths
-		self.check_dir() 
-		gcode = ""
-		
-		biarc_group = inkex.etree.SubElement( self.selected_paths.keys()[0] if len(self.selected_paths.keys())>0 else self.layers[0], inkex.addNS('g','svg') )
-		print_(("self.layers=",self.layers))
-		print_(("paths=",paths))
-		colors = {}
-		for layer in self.layers :
-			if layer in paths :
-				print_(("layer",layer))
-				# transform simple path to get all var about orientation
-				self.transform_csp([ [ [[0,0],[0,0],[0,0]],  [[0,0],[0,0],[0,0]] ] ], layer)
-			
-				self.set_tool(layer)
-				curves = []
-				dxfpoints = []
-
-				try :
-					depth_func = eval('lambda c,d,s: ' + self.options.path_to_gcode_depth_function.strip('"'))				
-				except:
-					self.error("Bad depth function! Enter correct function at Path to Gcode tab!") 
-
-				for path in paths[layer] :
-					if "d" not in path.keys() : 
-						self.error(_("Warning: One or more paths do not have 'd' parameter, try to Ungroup (Ctrl+Shift+G) and Object to Path (Ctrl+Shift+C)!"),"selection_contains_objects_that_are_not_paths")
-						continue					
-					try:
-						csp = cubicsuperpath.parsePath(path.get("d"))
-						csp = self.apply_transforms(path, csp)
-						id_ = path.get("id")
-
-						def set_comment(match, path):
-							if match.group(1) in path.keys() :
-								return path.get(match.group(1))
-							else: 
-								return "None"
-						if self.options.comment_gcode != "" :
-							comment = re.sub("\[([A-Za-z_\-\:]+)\]", partial(set_comment, path=path), self.options.comment_gcode)
-							comment = comment.replace(":newline:","\n") 
-							comment = gcode_comment_str(comment)
-						else:
-							comment = ""
-						if self.options.comment_gcode_from_properties :
-							tags = get_path_properties(path)
-							for tag in tags :
-								comment += gcode_comment_str("%s: %s"%(tag,tags[tag]))
-	
-						style = simplestyle.parseStyle(path.get("style"))
-						colors[id_] = simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000")
-						if path.get("dxfpoint") == "1":
-							tmp_curve=self.transform_csp(csp, layer)
-							x=tmp_curve[0][0][0][0]
-							y=tmp_curve[0][0][0][1]
-							print_("got dxfpoint (scaled) at (%f,%f)" % (x,y))
-							dxfpoints += [[x,y]]
-						else:
-							
-							zd,zs = self.Zcoordinates[layer][1],	self.Zcoordinates[layer][0]
-							c = 1. - float(sum(colors[id_]))/255/3
-							curves += 	[
-										 [  
-										 	[id_, depth_func(c,zd,zs), comment],
-										 	[ self.parse_curve([subpath], layer) for subpath in csp  ]
-										 ]
-									]
-					except:
-						pass
->>>>>>> d2a206898ee8452e78ed71b0125f45b946ac74f0
 
 #				for c in curves : 
 #					print_(c)
