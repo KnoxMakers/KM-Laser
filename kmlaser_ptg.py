@@ -22,6 +22,7 @@
 kmlaser_current_version = "1.0"
 gcodetools_current_version = "1.7"
 
+import kmlaser_presets 
 import inkex, simplestyle, simplepath
 import cubicsuperpath, simpletransform, bezmisc
 
@@ -3189,62 +3190,6 @@ class Arangement_Genetic:
 
 class Gcodetools(inkex.Effect):
 
-    def process_settings(self,):
-
-        MAXFEEDRATE = 2500
-        MINFEEDRATE = 2
-        MINPULSERATE = 1
-        MAXPULSERATE = 10000
-        MINLASERPOWER = 0.125
-        MAXLASERPOWER = 0.6
-        
-        _presets = {
-            "3mm-wood-engrave-light": [10000,1000,0.13],
-            "3mm-wood-engrave-medium": [10000,400,0.13],
-            "3mm-wood-engrave-heavy": [10000,100,0.13],
-            "3mm-plywood-cut-fast": [10000,400,0.6],
-            "3mm-plywood-cut-clean": [10000,100,0.6],
-            "6mm-wood-engrave-light": [10000,1000,0.13],
-            "6mm-wood-engrave-medium": [10000,400,0.13],
-            "6mm-wood-engrave-heavy": [10000,100,0.13],
-            "6mm-plywood-cut-fast": [10000,200,0.6],
-            "6mm-plywood-cut-clean": [10000,100,0.6],
-            "3mm-acrylic-engrave-light": [10000,500,0.13],
-            "3mm-acrylic-engrave-medium": [10000,500,0.3],
-            "3mm-acrylic-engrave-heavy": [10000,500,0.5],
-            "3mm-acrylic-cut": [10000,400,0.6],
-            "6mm-acrylic-engrave-light": [10000,500,0.13],
-            "6mm-acrylic-engrave-medium": [10000,500,0.3],
-            "6mm-acrylic-engrave-heavy": [10000,500,0.5],
-            "6mm-acrylic-cut": [10000,200,0.6],			
-        }
-
-        preset = self.options.preset
-        try:
-            self.options.feedrate = _presets[preset][1]
-            self.options.pulserate = _presets[preset][0]
-            self.options.laserpower = _presets[preset][2]
-        except:
-            pass
-
-
-        feedrate = int(self.options.feedrate)
-        pulserate = int(self.options.pulserate)
-        laserpower = round(float(self.options.laserpower),2)
-        
-        if feedrate < MINFEEDRATE or feedrate > MAXFEEDRATE:
-            self.error("Feed Rate is outside of the allowed range [" + str(MINFEEDRATE) + "-" + str(MAXFEEDRATE) + "].")
-            return False
-
-        if pulserate < MINPULSERATE or pulserate > MAXPULSERATE:
-            self.error("Pulse Rate is outside of the allowed range [" + str(MINPULSERATE) + "-" + str(MAXPULSERATE) + "].")
-            return False
-
-        if laserpower < MINLASERPOWER or laserpower > MAXLASERPOWER:
-            self.error("Laser Power is outside the allowed range [" + str(MINLASERPOWER) + "-" + str(MAXLASERPOWER) + "].")
-            
-        return True
-
     def export_gcode(self,gcode, no_headers = False) :
         if self.options.postprocessor != ""  or self.options.postprocessor_custom != "" :
             postprocessor = Postprocessor(self.error)
@@ -3255,8 +3200,7 @@ class Gcodetools(inkex.Effect):
                 postprocessor.process(self.options.postprocessor_custom)
 
 
-        power_gcode = "M68 E0 Q" + str(round(float(self.options.laserpower),3)) + "\n"
-        postprocessor.gcode = power_gcode + postprocessor.gcode
+        postprocessor.gcode = postprocessor.gcode
         
         if not no_headers :
             postprocessor.gcode = self.header + postprocessor.gcode + self.footer
@@ -3564,16 +3508,17 @@ class Gcodetools(inkex.Effect):
 
     def __init__(self):
         inkex.Effect.__init__(self)
-        self.OptionParser.add_option("",   "--laser-power",					action="store", type="string",		dest="laserpower",  default="0.6", help="Laser Power")
-        self.OptionParser.add_option("",   "--preset-settings",				action="store", type="string",		dest="preset",  default="custom", help="Preset Feedrate/Pulserate/LaserPower")
-        self.OptionParser.add_option("",   "--feed-rate",					action="store", type="int",		dest="feedrate",  default="400", help="Feedrate for cutting")
-        self.OptionParser.add_option("",   "--pulse-rate",					action="store", type="int",		dest="pulserate", default="10000", help="Pulses per MM for laser")
-        self.OptionParser.add_option("-d", "--directory",					action="store", type="string", 		dest="directory", default="/home/",					help="Directory for gcode file")
-        self.OptionParser.add_option("-f", "--filename",					action="store", type="string", 		dest="file", default="-1.0",						help="File name")			
+        self.OptionParser.add_option("",   "--preset-material", action="store", type="string", dest="pmaterial",  default="custom", help="Preset Material")
+        self.OptionParser.add_option("",   "--preset-power", action="store", type="string", dest="ppower",  default="custom", help="Preset Power")
+        self.OptionParser.add_option("",   "--laser-power",action="store", type="float",dest="laserpower",  default="0.6", help="Custom Laser Power")
+        self.OptionParser.add_option("",   "--feed-rate",action="store", type="int", dest="feedrate",  default="400", help="Custom Feed Rate")
+        self.OptionParser.add_option("",   "--pulse-rate",action="store", type="int",dest="pulserate", default="10000", help="Custom Pulse Rate")
+        self.OptionParser.add_option("-d", "--directory",	action="store", type="string", dest="directory", default="/home/",help="Directory for gcode file")
+        self.OptionParser.add_option("-f", "--filename",	action="store", type="string", dest="file", default="-1.0",help="File name")			
         self.OptionParser.add_option("",   "--add-numeric-suffix-to-filename", action="store", type="inkbool",	dest="add_numeric_suffix_to_filename", default=True,help="Add numeric suffix to filename")			
         self.OptionParser.add_option("",   "--Zscale",						action="store", type="float", 		dest="Zscale", default="1.0",						help="Scale factor Z")				
         self.OptionParser.add_option("",   "--Zoffset",						action="store", type="float", 		dest="Zoffset", default="0.0",						help="Offset along Z")
-        self.OptionParser.add_option("-s", "--Zsafe",						action="store", type="float", 		dest="Zsafe", default="0.1",						help="Z above all obstacles")
+        self.OptionParser.add_option("-s", "--Zsafe",						action="store", type="float", 		dest="Zsafe", default="0.000001",						help="Z above all obstacles")
         self.OptionParser.add_option("-z", "--Zsurface",					action="store", type="float", 		dest="Zsurface", default="0.0",						help="Z of the surface")
         self.OptionParser.add_option("-c", "--Zdepth",						action="store", type="float", 		dest="Zdepth", default="-0.1",					help="Z depth of cut")
         self.OptionParser.add_option("",   "--Zstep",						action="store", type="float", 		dest="Zstep", default="-0.1",						help="Z step of cutting")		
@@ -3915,7 +3860,7 @@ class Gcodetools(inkex.Effect):
     def generate_gcode(self, curve, layer, depth):
         Zauto_scale = self.Zauto_scale[layer]
         tool = self.tools[layer][0]
-        g = ""
+        g = "M68 E0 Q"+str(self.options.laserpower) + "\n"
 
         def c(c):
             c = [c[i] if i<len(c) else None for i in range(6)]
@@ -3945,7 +3890,7 @@ class Gcodetools(inkex.Effect):
         #if tool != self.last_used_tool :
         #	g += ( "(Change tool to %s)\n" % re.sub("\"'\(\)\\\\"," ",tool["name"]) ) + tool["tool change gcode"] + "\n"
 
-        lg, zs, f =  'G00', self.options.Zsafe, " F%f"%tool['feed'], 
+        lg, zs, f =  'G00', self.options.Zsafe, " F%f"%self.options.feedrate, 
         current_a = 0
         go_to_safe_distance = "G00" + c([None,None,zs]) + " (LASER OFF)\n" 
         penetration_feed = " F%s"%tool['penetration feed'] 
@@ -3954,7 +3899,8 @@ class Gcodetools(inkex.Effect):
             s, si = curve[i-1], curve[i]
             feed = f if lg not in ['G01','G02','G03'] else ''
             if s[1]	== 'move':
-                g += go_to_safe_distance + "G00" + c(si[0]) + "\n" + tool['gcode before path'] + "\n"
+                g += go_to_safe_distance + "G00" + c(si[0]) + "\n" + "M3 (UNLOCK) S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
+                #tool['gcode before path'] + "\n"
                 lg = 'G00'
             elif s[1] == 'end':
                 g += go_to_safe_distance + tool['gcode after path'] + "\n"
@@ -4581,7 +4527,8 @@ class Gcodetools(inkex.Effect):
                                 comment += gcode_comment_str("%s: %s"%(tag,tags[tag]))
 
                         style = simplestyle.parseStyle(path.get("style"))
-                        colors[id_] = simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000")
+                        color = simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000")
+                        colors[id_]  = color
                         if path.get("dxfpoint") == "1":
                             tmp_curve=self.transform_csp(csp, layer)
                             x=tmp_curve[0][0][0][0]
@@ -4594,7 +4541,7 @@ class Gcodetools(inkex.Effect):
                             c = 1. - float(sum(colors[id_]))/255/3
                             curves += 	[
                                 [  
-                                    [id_, depth_func(c,zd,zs), comment],
+                                    [id_, -0.000001, comment],
                                     [ self.parse_curve([subpath], layer) for subpath in csp  ]
                                 ]
                             ]
@@ -4626,13 +4573,36 @@ class Gcodetools(inkex.Effect):
                         keys = range(len(curves))
                     for key in keys:
                         d = curves[key][0][1]
+                        #KMLASERTODO CHOOSE SETTINGS HERE
+
                         for step in range( 0,  int(math.ceil( abs((zs-d)/self.tools[layer][0]["depth step"] )) ) ):
                             z = max(d, zs - abs(self.tools[layer][0]["depth step"]*(step+1)))
+
+                            if self.options.ppower == "color":
+                                color = simplestyle.formatColoria(colors[curves[key][0][0]])
+                                #simplestyle.formatColoria(simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000"))
+                                ppwr = ""
+                                if color in kmlaser_presets._pcolors:
+                                    ppwr = kmlaser_presets._pcolors[color]
+                                else:
+                                    ppwr = "cut"
+
+                                #elf.error(curves[key][0][0] + ", c = " + color + ", p = " + ppwr)
+                                self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][ppwr][0]
+                                self.options.feedrate = kmlaser_presets._presets[self.options.pmaterial][ppwr][1]
+                                self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][ppwr][2]
+                                #elf.error("S"+self.options.pulserate + " F" + self.options.feedrate + " Q" + self.options.laserpower)
+
+                            elif self.options.pmaterial != "custom" and self.options.ppower != "custom":
+                                self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][0] 
+                                self.options.feedrate = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][1]
+                                self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][2]
+
 
                             gcode += gcode_comment_str("\nStart cutting path id: %s"%curves[key][0][0])
                             if curves[key][0][2] != "()" :
                                 gcode += curves[key][0][2] # add comment
-
+                            
                             for curve in curves[key][1]:
                                 gcode += self.generate_gcode(curve, layer, z)
 
@@ -4752,12 +4722,12 @@ class Gcodetools(inkex.Effect):
     def tools_library(self, layer=None) :
         # Add a tool to the drawing
         tool = {
-            "name": "Buildlog 2.x/LinuxCNC Laser",
-            "id": "Laser cutter 0001",
+            "name": "KMLaser",
+            "id": "KMLaser",
             "diameter":10,
             "penetration feed":1000,
-            "feed": self.options.feedrate,
-            "gcode before path":"""M3 (UNLOCK) S""" + str(self.options.pulserate) + """ (PULSE RATE) F""" + str(self.options.feedrate) + """ (FEED RATE)""",
+            #"feed": self.options.feedrate,
+            #"gcode before path":"""M3 (UNLOCK) S""" + str(self.options.pulserate) + """ (PULSE RATE) F""" + str(self.options.feedrate) + """ (FEED RATE)""",
             "gcode after path":"M5 (LOCK)\n",
         }
 
@@ -4873,34 +4843,23 @@ class Gcodetools(inkex.Effect):
             except :
                 print_  = lambda *x : None 
         else : print_  = lambda *x : None 
-        if self.options.active_tab == '"help"' :
-            self.help()
+        if self.options.active_tab == '"custom-colors"' :
             return
-        elif self.options.active_tab == '"about"' :
-            self.help()
-            return
-
-        elif self.options.active_tab ==  '"test"' :
-            self.test()
-
-        elif self.options.active_tab not in ['"kmlaser-about"','"laser-values"','"dxfpoints"','"path-to-gcode"', '"area_fill"', '"area"', '"area_artefacts"', '"engraving"', '"orientation"', '"tools_library"', '"lathe"', '"offset"', '"arrangement"', '"update"', '"graffiti"', '"lathe_modify_path"', '"plasma-prepare-path"']:
-            self.error(_("Select one of the action tabs - Path to Gcode, Area, Engraving, DXF points, Orientation, Offset, Lathe or Tools library.\n Current active tab id is %s" % self.options.active_tab),"error")
         else:
 
             # Get all Gcodetools data from the scene.
             self.get_info()
-            if self.process_settings():
-                if self.orientation_points == {} :
-                    #self.error(_("Orientation points have not been defined! A default set of orientation points has been automatically added."),"warning")
-                    self.orientation( self.layers[min(1,len(self.layers)-1)] )		
-                    self.get_info()
-                if self.tools == {} :
-                    #self.error(_("Cutting tool has not been defined! A default tool has been automatically added."),"warning")
-                    self.options.tools_library_type = "default"
-                    self.tools_library( self.layers[min(1,len(self.layers)-1)] )
-                    self.get_info()
+            if self.orientation_points == {} :
+                #self.error(_("Orientation points have not been defined! A default set of orientation points has been automatically added."),"warning")
+                self.orientation( self.layers[min(1,len(self.layers)-1)] )		
+                self.get_info()
+            if self.tools == {} :
+                #self.error(_("Cutting tool has not been defined! A default tool has been automatically added."),"warning")
+                self.options.tools_library_type = "default"
+                self.tools_library( self.layers[min(1,len(self.layers)-1)] )
+                self.get_info()
 
-                self.path_to_gcode()
+            self.path_to_gcode()
 
 """
 			if self.options.active_tab == '"path-to-gcode"' or self.options.active_tab == '"laser-values"': 

@@ -3,7 +3,7 @@ KM Laser Bundle
 
 A bundle of Inkscape extensions useful for Laser Cutting/Engraving.
 
-This bundle is meant primarily for the use of the Knox Makers members on the Knox Makers laser cutter but might be useful to others.  If you are using this for your own laser there are likely preset values that you will need to edit.
+This bundle is meant primarily for the use of the Knox Makers members on the Knox Makers laser cutter but might be useful to others.  If you are using this for your own laser there are likely preset values that you will need to edit the settings in kmlaser_presets.py.
 
 
 ===
