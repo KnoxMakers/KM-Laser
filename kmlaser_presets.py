@@ -1,5 +1,6 @@
 _pcolors = {
     "#ff0000": "cut",
+    "#000000": "cut",
     "#00ffff": "engrave-light",
     "#0000ff": "engrave-heavy",
 }
