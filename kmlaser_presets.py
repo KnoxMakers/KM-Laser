@@ -26,7 +26,7 @@ _presets = {
         "cut": [10000,200,0.6],            
     },
     "paper": {
-        "engrave-light": [1, 10000, 0.2], # Perforated
+        "engrave-light": [1, 1000, 0.2], # Perforated
         "engrave-heavy": [10000,1500,0.128],
         "cut": [10000, 500, 0.165]
     },
