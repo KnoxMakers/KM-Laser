@@ -3860,7 +3860,9 @@ class Gcodetools(inkex.Effect):
     def generate_gcode(self, curve, layer, depth):
         Zauto_scale = self.Zauto_scale[layer]
         tool = self.tools[layer][0]
-        g = "M68 E0 Q"+str(self.options.laserpower) + "\n"
+        q = '%.2f' % self.options.laserpower
+        g = "M68 E0 Q"+ q + "\n"
+        g += "M3 (UNLOCK) S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
 
         def c(c):
             c = [c[i] if i<len(c) else None for i in range(6)]
@@ -3890,7 +3892,7 @@ class Gcodetools(inkex.Effect):
         #if tool != self.last_used_tool :
         #	g += ( "(Change tool to %s)\n" % re.sub("\"'\(\)\\\\"," ",tool["name"]) ) + tool["tool change gcode"] + "\n"
 
-        lg, zs, f =  'G00', self.options.Zsafe, " F%f"%self.options.feedrate, 
+        lg, zs, f =  'G00', self.options.Zsafe, " F%f (BUUUURN)"%self.options.feedrate, 
         current_a = 0
         go_to_safe_distance = "G00" + c([None,None,zs]) + " (LASER OFF)\n" 
         penetration_feed = " F%s"%tool['penetration feed'] 
@@ -3899,7 +3901,8 @@ class Gcodetools(inkex.Effect):
             s, si = curve[i-1], curve[i]
             feed = f if lg not in ['G01','G02','G03'] else ''
             if s[1]	== 'move':
-                g += go_to_safe_distance + "G00" + c(si[0]) + "\n" + "M3 (UNLOCK) S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
+                #g += go_to_safe_distance + "G00" + c(si[0]) + "\n" + "M3 (UNLOCK) S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
+                g += "G00" + c(si[0]) + "\n" 
                 #tool['gcode before path'] + "\n"
                 lg = 'G00'
             elif s[1] == 'end':
@@ -3911,7 +3914,7 @@ class Gcodetools(inkex.Effect):
                     a = calculate_angle(a, current_a)
                     g+="G01 A%s\n" % (a*tool['4th axis scale']+tool['4th axis offset'])
                     current_a = a
-                if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed +" (LASER POWAH)\n"	
+                #if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed +" (LASER POWAH)\n"	
                 g += "G01" +c(si[0]+[s[5][1]+depth]) + feed + "\n"
                 lg = 'G01'
             elif s[1] == 'arc':
@@ -3927,7 +3930,7 @@ class Gcodetools(inkex.Effect):
                     axis4 = " A%s"%((current_a+s[3])*tool['4th axis scale']+tool['4th axis offset'])
                     current_a = current_a+s[3]
                 else : axis4 = ""
-                if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed + " (LASER POWAH)\n"				
+                #if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed + " (LASER POWAH)\n"				
                 if (r[0]**2 + r[1]**2)>self.options.min_arc_radius**2:
                     r1, r2 = (P(s[0])-P(s[2])), (P(si[0])-P(s[2]))
                     if abs(r1.mag()-r2.mag()) < 0.001 :
@@ -4573,8 +4576,8 @@ class Gcodetools(inkex.Effect):
                         keys = range(len(curves))
                     for key in keys:
                         d = curves[key][0][1]
-                        #KMLASERTODO CHOOSE SETTINGS HERE
-
+                        dopath = True
+                        
                         for step in range( 0,  int(math.ceil( abs((zs-d)/self.tools[layer][0]["depth step"] )) ) ):
                             z = max(d, zs - abs(self.tools[layer][0]["depth step"]*(step+1)))
 
@@ -4585,13 +4588,13 @@ class Gcodetools(inkex.Effect):
                                 if color in kmlaser_presets._pcolors:
                                     ppwr = kmlaser_presets._pcolors[color]
                                 else:
-                                    ppwr = "cut"
+                                    dopath = False
+                                    ppwr = None
 
-                                #elf.error(curves[key][0][0] + ", c = " + color + ", p = " + ppwr)
-                                self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][ppwr][0]
-                                self.options.feedrate = kmlaser_presets._presets[self.options.pmaterial][ppwr][1]
-                                self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][ppwr][2]
-                                #elf.error("S"+self.options.pulserate + " F" + self.options.feedrate + " Q" + self.options.laserpower)
+                                if ppwr:
+                                    self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][ppwr][0]
+                                    self.options.feedrate = kmlaser_presets._presets[self.options.pmaterial][ppwr][1]
+                                    self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][ppwr][2]
 
                             elif self.options.pmaterial != "custom" and self.options.ppower != "custom":
                                 self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][0] 
@@ -4599,14 +4602,15 @@ class Gcodetools(inkex.Effect):
                                 self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][2]
 
 
-                            gcode += gcode_comment_str("\nStart cutting path id: %s"%curves[key][0][0])
-                            if curves[key][0][2] != "()" :
-                                gcode += curves[key][0][2] # add comment
+                            if dopath:
+                                gcode += gcode_comment_str("\nStart cutting path id: %s"%curves[key][0][0])
+                                if curves[key][0][2] != "()" :
+                                    gcode += curves[key][0][2] # add comment
                             
-                            for curve in curves[key][1]:
-                                gcode += self.generate_gcode(curve, layer, z)
+                                for curve in curves[key][1]:
+                                    gcode += self.generate_gcode(curve, layer, z)
 
-                            gcode += gcode_comment_str("End cutting path id: %s\n\n"%curves[key][0][0])
+                                gcode += gcode_comment_str("End cutting path id: %s\n\n"%curves[key][0][0])
 
                 else:	# pass by pass
                     mind = min( [curve[0][1] for curve in curves] )	
