@@ -3864,7 +3864,7 @@ class Gcodetools(inkex.Effect):
         tool = self.tools[layer][0]
         q = '%.2f' % self.options.laserpower
         g = "M68 E0 Q"+ q + "\n"
-        g += "M3 (UNLOCK) S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
+        g += "S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
         #g += "M62 P0 (BURN ON MOVE)\n"
 
         def c(c):
@@ -3919,7 +3919,7 @@ class Gcodetools(inkex.Effect):
                     current_a = a
                 #if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed +" (LASER POWAH)\n"	
                 if lg=="G00": 
-                    g += "M62 P0 (BURN ON MOVE)\n"
+                    g += "M3 (UNLOCK)\nM62 P0 (BURN ON MOVE)\n"
                 g += "G01" +c(si[0]+[s[5][1]+depth]) + feed + "\n"
                 lg = 'G01'
             elif s[1] == 'arc':
@@ -3937,7 +3937,7 @@ class Gcodetools(inkex.Effect):
                 else : axis4 = ""
                 #if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed + " (LASER POWAH)\n"				
                 if lg=="G00": 
-                    g += "M62 P0 (BURN ON MOVE)\n"
+                    g += "M3(UNLOCK)\nM62 P0 (BURN ON MOVE)\n"
 
                 if (r[0]**2 + r[1]**2)>self.options.min_arc_radius**2:
                     r1, r2 = (P(s[0])-P(s[2])), (P(si[0])-P(s[2]))
