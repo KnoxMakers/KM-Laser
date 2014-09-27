@@ -91,6 +91,8 @@ EMC_TOLERANCE_EQUAL = 0.00001
 options = {}
 defaults = {
 'header': """%
+M64 P0 ( M64 OFF/ M62 ON)
+G01 Z-0.000001
 (Header)
 """,
 'footer': """(Footer)
@@ -3863,6 +3865,7 @@ class Gcodetools(inkex.Effect):
         q = '%.2f' % self.options.laserpower
         g = "M68 E0 Q"+ q + "\n"
         g += "M3 (UNLOCK) S"+str(self.options.pulserate) +" (PULSERATE) F" + str(self.options.feedrate) + " (FEEDRATE)\n"
+        #g += "M62 P0 (BURN ON MOVE)\n"
 
         def c(c):
             c = [c[i] if i<len(c) else None for i in range(6)]
@@ -3892,7 +3895,7 @@ class Gcodetools(inkex.Effect):
         #if tool != self.last_used_tool :
         #	g += ( "(Change tool to %s)\n" % re.sub("\"'\(\)\\\\"," ",tool["name"]) ) + tool["tool change gcode"] + "\n"
 
-        lg, zs, f =  'G00', self.options.Zsafe, " F%f (BUUUURN)"%self.options.feedrate, 
+        lg, zs, f =  'G00', self.options.Zsafe, " F%f"%self.options.feedrate, 
         current_a = 0
         go_to_safe_distance = "G00" + c([None,None,zs]) + " (LASER OFF)\n" 
         penetration_feed = " F%s"%tool['penetration feed'] 
@@ -3915,6 +3918,8 @@ class Gcodetools(inkex.Effect):
                     g+="G01 A%s\n" % (a*tool['4th axis scale']+tool['4th axis offset'])
                     current_a = a
                 #if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed +" (LASER POWAH)\n"	
+                if lg=="G00": 
+                    g += "M62 P0 (BURN ON MOVE)\n"
                 g += "G01" +c(si[0]+[s[5][1]+depth]) + feed + "\n"
                 lg = 'G01'
             elif s[1] == 'arc':
@@ -3931,6 +3936,9 @@ class Gcodetools(inkex.Effect):
                     current_a = current_a+s[3]
                 else : axis4 = ""
                 #if lg=="G00": g += "G01" + c([None,None,s[5][0]+depth]) + penetration_feed + " (LASER POWAH)\n"				
+                if lg=="G00": 
+                    g += "M62 P0 (BURN ON MOVE)\n"
+
                 if (r[0]**2 + r[1]**2)>self.options.min_arc_radius**2:
                     r1, r2 = (P(s[0])-P(s[2])), (P(si[0])-P(s[2]))
                     if abs(r1.mag()-r2.mag()) < 0.001 :
@@ -4732,7 +4740,7 @@ class Gcodetools(inkex.Effect):
             "penetration feed":1000,
             #"feed": self.options.feedrate,
             #"gcode before path":"""M3 (UNLOCK) S""" + str(self.options.pulserate) + """ (PULSE RATE) F""" + str(self.options.feedrate) + """ (FEED RATE)""",
-            "gcode after path":"M5 (LOCK)\n",
+            "gcode after path":"M64 P0\nM5 (LOCK)\n",
         }
 
         tool_num = sum([len(self.tools[i]) for i in self.tools])
