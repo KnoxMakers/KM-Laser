@@ -92,7 +92,7 @@ options = {}
 defaults = {
 'header': """%
 M64 P0 ( M64 OFF/ M62 ON)
-G01 Z-0.000001
+G01 Z-0.000001 F10000
 (Header)
 """,
 'footer': """(Footer)
