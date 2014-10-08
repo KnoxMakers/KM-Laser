@@ -14,7 +14,10 @@ Copy all the files to the Inkscape extensions directory and then restart Inkscap
 
 Linux:   $HOME/.config/inkscape/extensions
 
-Mac:     /Applications/Inkscape.app/Contents/Resources/extensions/
+Mac:     Use the installer `installer_OS_X.sh` bundled with the extension
+- Open Terminal
+- `cd` to the downloaded LaserCNC extension directory
+- run command `./installer_OS_X.sh`
 
 Windows: (Program files)\Inkscape\share\extensions\ 
 
