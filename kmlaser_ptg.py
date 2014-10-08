@@ -3510,6 +3510,18 @@ class Gcodetools(inkex.Effect):
 
     def __init__(self):
         inkex.Effect.__init__(self)
+        self.OptionParser.add_option("",   "--laser-ptg-custom1-color", action="store", type="string", dest="ptgcustom1color",  default="#000000", help="Custom1 Color")
+        self.OptionParser.add_option("",   "--laser-ptg-custom1-pulse", action="store", type="int", dest="ptgcustom1pulse",  default="10000", help="Custom1 Pulse")
+        self.OptionParser.add_option("",   "--laser-ptg-custom1-feed", action="store", type="int", dest="ptgcustom1feed",  default="400", help="Custom1 Feed")
+        self.OptionParser.add_option("",   "--laser-ptg-custom1-power", action="store", type="float", dest="ptgcustom1power",  default="0.4", help="Custom1 Power")
+        self.OptionParser.add_option("",   "--laser-ptg-custom2-color", action="store", type="string", dest="ptgcustom2color",  default="#000000", help="Custom2 Color")
+        self.OptionParser.add_option("",   "--laser-ptg-custom2-pulse", action="store", type="int", dest="ptgcustom2pulse",  default="10000", help="Custom2 Pulse")
+        self.OptionParser.add_option("",   "--laser-ptg-custom2-feed", action="store", type="int", dest="ptgcustom2feed",  default="400", help="Custom2 Feed")
+        self.OptionParser.add_option("",   "--laser-ptg-custom2-power", action="store", type="float", dest="ptgcustom2power",  default="0.4", help="Custom2 Power")
+        self.OptionParser.add_option("",   "--laser-ptg-custom3-color", action="store", type="string", dest="ptgcustom3color",  default="#000000", help="Custom3 Color")
+        self.OptionParser.add_option("",   "--laser-ptg-custom3-pulse", action="store", type="int", dest="ptgcustom3pulse",  default="10000", help="Custom3 Pulse")
+        self.OptionParser.add_option("",   "--laser-ptg-custom3-feed", action="store", type="int", dest="ptgcustom3feed",  default="400", help="Custom3 Feed")
+        self.OptionParser.add_option("",   "--laser-ptg-custom3-power", action="store", type="float", dest="ptgcustom3power",  default="0.4", help="Custom3 Power")
         self.OptionParser.add_option("",   "--preset-material", action="store", type="string", dest="pmaterial",  default="custom", help="Preset Material")
         self.OptionParser.add_option("",   "--preset-power", action="store", type="string", dest="ppower",  default="custom", help="Preset Power")
         self.OptionParser.add_option("",   "--laser-power",action="store", type="float",dest="laserpower",  default="0.6", help="Custom Laser Power")
@@ -4493,6 +4505,10 @@ class Gcodetools(inkex.Effect):
         self.check_dir() 
         gcode = ""
 
+        gcode1 = ""
+        gcode2 = ""
+        gcode3 = ""
+        
         biarc_group = inkex.etree.SubElement( self.selected_paths.keys()[0] if len(self.selected_paths.keys())>0 else self.layers[0], inkex.addNS('g','svg') )
         print_(("self.layers=",self.layers))
         print_(("paths=",paths))
@@ -4585,12 +4601,31 @@ class Gcodetools(inkex.Effect):
                     for key in keys:
                         d = curves[key][0][1]
                         dopath = True
+                        path_order = 1
                         
                         for step in range( 0,  int(math.ceil( abs((zs-d)/self.tools[layer][0]["depth step"] )) ) ):
                             z = max(d, zs - abs(self.tools[layer][0]["depth step"]*(step+1)))
-
-                            if self.options.ppower == "color":
-                                color = simplestyle.formatColoria(colors[curves[key][0][0]])
+                            color = simplestyle.formatColoria(colors[curves[key][0][0]])
+                            if self.options.active_tab == "\"kmlaser-ptg-by-color\"":
+                                if color.lower() == self.options.ptgcustom1color.lower():
+                                    path_order = 1
+                                    self.options.pulserate = self.options.ptgcustom1pulse
+                                    self.options.feedrate = self.options.ptgcustom1feed
+                                    self.options.laserpower = self.options.ptgcustom1power
+                                elif color.lower() == self.options.ptgcustom2color.lower():
+                                    path_order = 2
+                                    self.options.pulserate = self.options.ptgcustom2pulse
+                                    self.options.feedrate = self.options.ptgcustom2feed
+                                    self.options.laserpower = self.options.ptgcustom2power
+                                elif color.lower() == self.options.ptgcustom3color.lower():
+                                    path_order = 3
+                                    self.options.pulserate = self.options.ptgcustom3pulse
+                                    self.options.feedrate = self.options.ptgcustom3feed
+                                    self.options.laserpower = self.options.ptgcustom3power
+                                else:
+                                    dopath = False
+                                    
+                            elif self.options.ppower == "color":
                                 #simplestyle.formatColoria(simplestyle.parseColor(style['stroke'] if "stroke"  in style and style['stroke']!='none' else "#000"))
                                 ppwr = ""
                                 if color in kmlaser_presets._pcolors:
@@ -4603,23 +4638,39 @@ class Gcodetools(inkex.Effect):
                                     self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][ppwr][0]
                                     self.options.feedrate = kmlaser_presets._presets[self.options.pmaterial][ppwr][1]
                                     self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][ppwr][2]
+                                    if ppwr == "engrave-light":
+                                        path_order = 1
+                                    elif ppwr == "engrave-heavy":
+                                        path_order = 2
+                                    elif ppwr == "cut":
+                                        path_order = 3
 
                             elif self.options.pmaterial != "custom" and self.options.ppower != "custom":
                                 self.options.pulserate = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][0] 
                                 self.options.feedrate = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][1]
                                 self.options.laserpower = kmlaser_presets._presets[self.options.pmaterial][self.options.ppower][2]
 
-
                             if dopath:
-                                gcode += gcode_comment_str("\nStart cutting path id: %s"%curves[key][0][0])
+                                tmp_gcode = ""
+                                tmp_gcode += gcode_comment_str("\nStart cutting path id: %s"%curves[key][0][0])
                                 if curves[key][0][2] != "()" :
-                                    gcode += curves[key][0][2] # add comment
+                                    tmp_gcode += curves[key][0][2] # add comment
                             
                                 for curve in curves[key][1]:
-                                    gcode += self.generate_gcode(curve, layer, z)
+                                    tmp_gcode += self.generate_gcode(curve, layer, z)
 
-                                gcode += gcode_comment_str("End cutting path id: %s\n\n"%curves[key][0][0])
+                                tmp_gcode += gcode_comment_str("End cutting path id: %s\n\n"%curves[key][0][0])
 
+                                if path_order == 1:
+                                    gcode1 += tmp_gcode
+                                elif path_order == 2:
+                                    gcode2 += tmp_gcode
+                                elif path_order == 3:
+                                    gcode3 += tmp_gcode
+                                else:
+                                    gcode += tmp_gcode
+                                
+                    gcode += gcode1 + gcode2 + gcode3
                 else:	# pass by pass
                     mind = min( [curve[0][1] for curve in curves] )	
                     for step in range( 0,  int(math.ceil( abs((zs-mind)/self.tools[layer][0]["depth step"] )) ) ):
