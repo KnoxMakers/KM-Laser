@@ -23,19 +23,21 @@
 				<_item value="engrave-heavy">Engrave (Heavy)</_item>
 				<_item value="cut">Cut</_item>
 			</param>
-<!--			<param name="options-custom-desc" type="description">
-The below custom values are only used when at least one of the above dropdowns is set to "Custom".  Otherwise these values are ignored and preset values are used.
-			</param>
-			<param name='laser-power' type="float" _gui-text="Custom Laser Power (0.128-0.6):" min="0.128" max="0.6" precision="3">0.6</param>
-			<param name='feed-rate' type="int" _gui-text="Custom Feed Rate (mm per minute):" min="2" max="2500">400</param>
-			<param name='pulse-rate' type="int" _gui-text="Custom Pulse Rate  (pulses per mm):" min="1" max="10000">10000</param>
--->
 			<param name="options-sep" type="description">
 ------------------------------------------------------------------------------------------------
 			</param>
+			<param name="options-custom-desc" type="description">
+If you have paths selected when running this extension it will choose only the chosen paths.  Otherwise it will choose all paths found in a proper layer (not root).  
 
-			<param name="directory" type="string" _gui-text="Directory:">/home</param>
-			<param name="filename" type="string" _gui-text="Filename: ">output.ngc</param>
+Preset values have been chosen for the best visual appearence on simple engraves and cuts.  These may or may not work for your purposes.  We encourage the use of custom values to get the best results for you.  
+
+The "By Color" selection allows you to have multiple laser power settings in one design.  The preset values are chosen based on the stroke color of the path.  The following defines what colors translate to what preset value:
+
+Cut => #ff0000 or #000000
+Engrave (Light) => #00ffff
+Engrave (Heavy) => #0000ff
+
+			</param>
 
 		</page>
 
@@ -60,6 +62,20 @@ The below custom values are only used when at least one of the above dropdowns i
 			<param name='laser-ptg-custom3-power' type="float" min="0.125" max="0.6" precision="3" _gui-text="Laser Power (Default: 0.14): ">0.4</param>
 		</page>
 
+                 <page name='kmlaser-file-options' _gui-text="File Options">
+			<param name="directory" type="string" _gui-text="Directory:">/home</param>
+			<param name="filename" type="string" _gui-text="Filename: ">kmlaser.ngc</param>
+			<param name="options-sep" type="description">
+------------------------------------------------------------------------------------------------
+			</param>
+			<param name="options-file-desc" type="description">
+Make sure that the Directory chosen is one that you have write permissions.  
+
+Sequential numbers (ie: _001, _002, _003) will be added to the filenames so as not to overwrite files that exist.
+
+			</param>			
+                 </page>
+		 
 		<page name='kmlaser-about' _gui-text='Bundle'>
 			<param name="bundle-about" type="description">
 Path to Gcode 
