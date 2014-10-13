@@ -15,10 +15,9 @@ Copy all the files to the Inkscape extensions directory and then restart Inkscap
 
 Linux:   $HOME/.config/inkscape/extensions
 
-Mac:     Use the installer `installer_OS_X.sh` bundled with the extension
-- Open Terminal
-- `cd` to the downloaded LaserCNC extension directory
-- run command `./installer_OS_X.sh`
+Mac:     Download installer `KM-Laser-x86_64-OS_X_1.0.zip` bundled with the extension
+- Double click `KM-Laser-x86_64-OS_X_1.0.zip` to unzip the archive to an App by the same name `KM-Laser-x86_64-OS_X_1.0.app`
+- Double click the app named `KM-Laser-x86_64-OS_X_1.0.app`
 
 Windows: (Program files)\Inkscape\share\extensions\ 
 
