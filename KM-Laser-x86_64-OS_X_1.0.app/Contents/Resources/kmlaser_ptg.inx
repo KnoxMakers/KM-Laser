@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <name>Path to Gcode</name>
+    <id>org.knoxmakers.filter.kmlaser</id>
+	<dependency type="executable" location="extensions">kmlaser_ptg.py</dependency>
+	<dependency type="executable" location="extensions">kmlaser_presets.py</dependency>
+	<dependency type="executable" location="extensions">inkex.py</dependency>
+	<param name='active-tab' type="notebook">
+
+		<page name='laser-values' _gui-text='Preset Values'>
+			<param name='preset-material' type='enum' _gui-text="Material:">
+				<_item value="3mm-wood">3mm Wood</_item>
+				<_item value="6mm-wood">6mm Wood</_item>
+				<_item value="3mm-acrylic">3mm Acrylic</_item>
+				<_item value="6mm-acrylic">6mm Acrylic</_item>
+				<_item value="cardboard">Cardboard</_item>
+				<_item value="paper">Paper</_item>
+			</param>
+			<param name='preset-power' type='enum' _gui-text="Power:">
+				<_item value="color">By Color</_item>
+				<_item value="engrave-light">Engrave (Light)</_item>
+				<_item value="engrave-heavy">Engrave (Heavy)</_item>
+				<_item value="cut">Cut</_item>
+			</param>
+			<param name="options-sep" type="description">
+------------------------------------------------------------------------------------------------
+			</param>
+			<param name="options-custom-desc" type="description">
+If you have paths selected when running this extension it will choose only the chosen paths.  Otherwise it will choose all paths found in a proper layer (not root).  
+
+Preset values have been chosen for the best visual appearence on simple engraves and cuts.  These may or may not work for your purposes.  We encourage the use of custom values to get the best results for you.  
+
+The "By Color" selection allows you to have multiple laser power settings in one design.  The preset values are chosen based on the stroke color of the path.  The following defines what colors translate to what preset value:
+
+Cut => #ff0000 or #000000
+Engrave (Light) => #00ffff
+Engrave (Heavy) => #0000ff
+
+			</param>
+
+		</page>
+
+		<page name='kmlaser-ptg-by-color' _gui-text='Custom Values'>
+			<param name='laser-ptg-custom1-color' type="string" _gui-text="Stroke Color (Default: #00ffff):">#00ffff</param>
+			<param name='laser-ptg-custom1-pulse' type="int" min="1" max="10000" _gui-text="Pulse Rate (Default: 10000): ">10000</param>
+			<param name='laser-ptg-custom1-feed' type="int" min="2" max="2500" _gui-text="Feed Rate (Default: 400): ">400</param>
+			<param name='laser-ptg-custom1-power' type="float" min="0.125" max="0.6" precision="3" _gui-text="Laser Power (Default: 0.13): ">0.13</param>
+			<param name="options-sep" type="description">
+------------------------------------------------------------------------------------------------
+			</param>
+			<param name='laser-ptg-custom2-color' type="string" _gui-text="Stroke Color (Default: #0000ff):">#0000ff</param>
+			<param name='laser-ptg-custom2-pulse' type="int" min="1" max="10000" _gui-text="Pulse Rate (Default: 10000): ">10000</param>
+			<param name='laser-ptg-custom2-feed' type="int" min="2" max="2500" _gui-text="Feed Rate (Default: 400): ">400</param>
+			<param name='laser-ptg-custom2-power' type="float" min="0.125" max="0.6" precision="3" _gui-text="Laser Power (Default: 0.13): ">0.14</param>
+			<param name="options-sep" type="description">
+------------------------------------------------------------------------------------------------
+			</param>
+			<param name='laser-ptg-custom3-color' type="string" _gui-text="Stroke Color (Default: #000000):">#000000</param>
+			<param name='laser-ptg-custom3-pulse' type="int" min="1" max="10000" _gui-text="Pulse Rate (Default: 10000): ">10000</param>
+			<param name='laser-ptg-custom3-feed' type="int" min="2" max="2500" _gui-text="Feed Rate (Default: 400): ">400</param>
+			<param name='laser-ptg-custom3-power' type="float" min="0.125" max="0.6" precision="3" _gui-text="Laser Power (Default: 0.14): ">0.4</param>
+		</page>
+
+                 <page name='kmlaser-file-options' _gui-text="File Options">
+			<param name="directory" type="string" _gui-text="Directory:">/home</param>
+			<param name="filename" type="string" _gui-text="Filename: ">kmlaser.ngc</param>
+			<param name="options-sep" type="description">
+------------------------------------------------------------------------------------------------
+			</param>
+			<param name="options-file-desc" type="description">
+Make sure that the Directory chosen is one that you have write permissions.  
+
+Sequential numbers (ie: _001, _002, _003) will be added to the filenames so as not to overwrite files that exist.
+
+			</param>			
+                 </page>
+		 
+		<page name='kmlaser-about' _gui-text='Bundle'>
+			<param name="bundle-about" type="description">
+Path to Gcode 
+KMLaser Inkscape Bundle
+
+Based on part of Gcodetools ver. 1.7 at:
+http://www.cnc-club.ru/gcodetools
+
+Produces gcode for a LinuxCNC based Laser using the laser configuration at:
+https://github.com/bjj/2x_laser
+
+This extension bundle was hacked together for Knox Makers at:
+http://knoxmakers.org
+
+The preset settings are for a specific laser cutter.
+To alter these settings for your own use you should change the values in kmlaser_presets.py.
+</param>	
+
+		</page>
+
+	</param>	
+    <effect>
+		<effects-menu>
+			<submenu _name="KM Laser"/>
+		</effects-menu>
+		<object-type>path</object-type>
+    </effect>
+    <script>
+        <command reldir="extensions" interpreter="python">kmlaser_ptg.py</command>
+    </script>
+</inkscape-extension>
