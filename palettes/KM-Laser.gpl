@@ -1,9 +1,8 @@
 GIMP Palette
-Name: KM-Laser Palette
+Name: KM-Laser by Color
 Columns: 0
 #
-0    0    0       Black
-255  0    0       Red
-0    255  0       Green
-0    0    255     Blue
-
+0    0    0       Cut (#000000)
+255  0    0       Cut (#FF0000)
+0    0    255     Dark Engrave (#0000FF)
+0    255  255     Light Engrave (#00FFFF)
