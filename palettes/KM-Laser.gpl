@@ -1,0 +1,9 @@
+GIMP Palette
+Name: KM-Laser Palette
+Columns: 0
+#
+0    0    0       Black
+255  0    0       Red
+0    255  0       Green
+0    0    255     Blue
+
