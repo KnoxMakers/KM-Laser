@@ -11,15 +11,21 @@ This bundle is meant primarily for the use of the Knox Makers members on the Kno
 
 __Installation__
 
-Copy all the files to the Inkscape extensions directory and then restart Inkscape.
+Copy all the files from `extensions`, `templates`, and `palettes` to their respective Inkscape directories and then restart Inkscape.
 
-Linux:   $HOME/.config/inkscape/extensions
+Linux and Mac:
+```
+$HOME/.config/inkscape/extensions
+$HOME/.config/inkscape/templates
+$HOME/.config/inkscape/palettes
+```
 
-Mac:     Download installer `KM-Laser-x86_64-OS_X_1.0.zip` bundled with the extension
-- Double click `KM-Laser-x86_64-OS_X_1.0.zip` to unzip the archive to an App by the same name `KM-Laser-x86_64-OS_X_1.0.app`
-- Double click the app named `KM-Laser-x86_64-OS_X_1.0.app`
-
-Windows: (Program files)\Inkscape\share\extensions\ 
+Windows:
+```
+(Program files)\Inkscape\share\extensions\
+(Program files)\Inkscape\share\templates\
+(Program files)\Inkscape\share\palettes\
+```
 
 === 
 
