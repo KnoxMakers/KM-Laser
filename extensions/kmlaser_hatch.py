@@ -940,7 +940,15 @@ class Eggbot_Hatch( inkex.Effect ):
 
 		# Now make a <path> element which contains the hatches & is a child
 		# of the new <g> element
-		style = { 'stroke': '#000000', 'fill': 'none', 'stroke-width': '%f' % stroke_width}
+		
+		# KM-Laser change: Set hatch fill's stroke color to the object's stroke color or #00ffff if node has no stroke color.
+		
+		nstyle = simplestyle.parseStyle(node.get('style') or "")
+		ncolor = "#00ffff"
+		if "stroke" in nstyle and nstyle["stroke"] and nstyle["stroke"] != "none":
+			ncolor = nstyle["stroke"]
+
+		style = { 'stroke': ncolor, 'fill': 'none', 'stroke-width': '%f' % stroke_width}
 		line_attribs = { 'style':simplestyle.formatStyle( style ), 'd': path }
 		tran = node.get( 'transform' )
 		if ( tran != None ) and ( tran != '' ):
