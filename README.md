@@ -39,3 +39,5 @@ https://code.google.com/p/eggbotcode/downloads/
 
 Tabbed Box Maker
 http://www.keppel.demon.co.uk/111000/111000.html
+
+For Git Class Demo
