@@ -38,6 +38,10 @@ __version__ = "0.8" ### please report bugs, suggestions etc to bugs@twot.eu ###
 import sys,inkex,simplestyle,gettext
 _ = gettext.gettext
 
+# Support for Inkscape 0.48 and 0.91 unittouu
+if not hasattr(self, 'unittouu'):
+  self.unittouu = inkex.unittouu
+
 def drawS(XYstring):         # Draw lines from a list
   name='part'
   style = { 'stroke': '#000000', 'fill': 'none' }
