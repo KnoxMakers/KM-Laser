@@ -45,6 +45,9 @@ _ = gettext.gettext
 if "errormsg" not in dir(inkex):
     inkex.errormsg = lambda msg: sys.stderr.write((unicode(msg) + "\n").encode("UTF-8"))
 
+# Support for Inkscape 0.48 and 0.91 unittouu
+if not hasattr(self, 'unittouu'):
+    self.unittouu = inkex.unittouu
 
 def bezierslopeatt(((bx0,by0),(bx1,by1),(bx2,by2),(bx3,by3)),t):
     ax,ay,bx,by,cx,cy,x0,y0=bezmisc.bezierparameterize(((bx0,by0),(bx1,by1),(bx2,by2),(bx3,by3)))
