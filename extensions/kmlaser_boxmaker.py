@@ -33,16 +33,25 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-__version__ = "0.8" ### please report bugs, suggestions etc to bugs@twot.eu ###
+__version__ = "0.2" ### please report bugs, suggestions etc to board@knoxmakers.org ###
 
 import sys,inkex,simplestyle,gettext
 _ = gettext.gettext
 
-def drawS(XYstring):         # Draw lines from a list
-  name='part'
+def addGroup(piece): 
+	#This adds a group to the current layer
+	#we want all 4 segements of a box side to be grouped
+	#it'll also allow grouping of tab slots
+	grp_name='Piece' + str(piece)
+	grp_attribs = {inkex.addNS('label','inkscape'):grp_name}
+	grp = inkex.etree.SubElement(parent, 'g', grp_attribs) #the group to put everything in
+	return grp
+	
+def drawS(XYstring,grp):         # Draw lines from a list
+  name= 'part'
   style = { 'stroke': '#000000', 'fill': 'none' }
   drw = {'style':simplestyle.formatStyle(style),inkex.addNS('label','inkscape'):name,'d':XYstring}
-  inkex.etree.SubElement(parent, inkex.addNS('path','svg'), drw )
+  inkex.etree.SubElement(grp, inkex.addNS('path','svg'), drw )
   return
 
 def side((rx,ry),(sox,soy),(eox,eoy),tabVec,length,(dirx,diry),isTab):
@@ -135,6 +144,7 @@ class BoxMaker(inkex.Effect):
       self.OptionParser.add_option('--spacing',action='store',type='float',
         dest='spacing',default=25,help='Part Spacing')
 
+
   def effect(self):
     global parent,nomTab,equalTabs,thickness,correction
     
@@ -225,8 +235,11 @@ class BoxMaker(inkex.Effect):
       pieces=[[(2,0,0,1),(3,0,1,1),X,Z,0b1001],[(1,0,0,0),(2,0,0,1),Z,Y,0b1100],
               [(2,0,0,1),(2,0,0,1),X,Y,0b1100],[(3,1,0,1),(2,0,0,1),Z,Y,0b0110],
               [(4,1,0,2),(2,0,0,1),X,Y,0b0110],[(2,0,0,1),(1,0,0,0),X,Z,0b1100]]
-
+    #create a counter for group numbering
+    groupcount= 0
     for piece in pieces: # generate and draw each piece of the box
+      #increment groupcounter
+      groupcount+=1
       (xs,xx,xy,xz)=piece[0]
       (ys,yx,yy,yz)=piece[1]
       x=xs*spacing+xx*X+xy*Y+xz*Z  # root x co-ord for piece
@@ -236,10 +249,11 @@ class BoxMaker(inkex.Effect):
       tabs=piece[4]
       a=tabs>>3&1; b=tabs>>2&1; c=tabs>>1&1; d=tabs&1 # extract tab status for each side
       # generate and draw the sides of each piece
-      drawS(side((x,y),(d,a),(-b,a),-thickness if a else thickness,dx,(1,0),a))          # side a
-      drawS(side((x+dx,y),(-b,a),(-b,-c),thickness if b else -thickness,dy,(0,1),b))     # side b
-      drawS(side((x+dx,y+dy),(-b,-c),(d,-c),thickness if c else -thickness,dx,(-1,0),c)) # side c
-      drawS(side((x,y+dy),(d,-c),(d,a),-thickness if d else thickness,dy,(0,-1),d))      # side d
+      grp=addGroup(groupcount)
+      drawS(side((x,y),(d,a),(-b,a),-thickness if a else thickness,dx,(1,0),a),grp)          # side a
+      drawS(side((x+dx,y),(-b,a),(-b,-c),thickness if b else -thickness,dy,(0,1),b),grp)     # side b
+      drawS(side((x+dx,y+dy),(-b,-c),(d,-c),thickness if c else -thickness,dx,(-1,0),c),grp) # side c
+      drawS(side((x,y+dy),(d,-c),(d,a),-thickness if d else thickness,dy,(0,-1),d),grp)      # side d
 
 # Create effect instance and apply it.
 effect = BoxMaker()
