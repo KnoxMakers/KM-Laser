@@ -22,9 +22,9 @@
     <_option value="0">Outside</_option>
   </param>
 
-  <param name="length" type="float" precision="3" min="0.0" max="10000.0" _gui-text="length">1.0</param>
-  <param name="width" type="float" precision="3"  min="0.0" max="10000.0" _gui-text="Width">1.0</param>
-  <param name="depth" type="float" precision="3"  min="0.0" max="10000.0" _gui-text="Height">1.0</param>
+  <param name="length" type="float" precision="3" min="0.0" max="10000.0" _gui-text="length (X)">1.0</param>
+  <param name="width" type="float" precision="3"  min="0.0" max="10000.0" _gui-text="Width (Y)">1.0</param>
+  <param name="depth" type="float" precision="3"  min="0.0" max="10000.0" _gui-text="Height (Z)">1.0</param>
   <param name="tab" type="float" precision="2" min="0.0" max="10000.0" _gui-text="Minimum/Prefered Tab Width">1.0</param> 
 
   <param name="thickness" type="float" precision="2" min="0.0" max="10000.0" _gui-text="Material Thickness">1.0</param>
@@ -39,6 +39,13 @@
 
   <param name="spacing" type="float" precision="2" min="0.0" max="10000.0" _gui-text="Space Between Parts">1.0</param> 
   
+  <param name="slotside" _gui-text="Side to Slot" type="optiongroup" appearance="minimal">
+    <option value="0">None</option>
+    <option value="1">XZ</option>
+    <option value="2">YZ</option>
+    <option value="3">XY</option>
+  </param>
+
 		</page>
 
 		<page name='kmlaser-about' _gui-text='Bundle'>
