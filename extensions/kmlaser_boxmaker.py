@@ -44,20 +44,361 @@ import sys,inkex,simplestyle,gettext
 _ = gettext.gettext
 
 def addGroup(piece): 
-	#This adds a group to the current layer
-	#we want all 4 segements of a box side to be grouped
-	#it'll also allow grouping of tab slots
-	grp_name='Piece' + str(piece)
-	grp_attribs = {inkex.addNS('label','inkscape'):grp_name}
-	grp = inkex.etree.SubElement(parent, 'g', grp_attribs) #the group to put everything in
-	return grp
-	
+  #This adds a group to the current layer
+  #we want all 4 segements of a box side to be grouped
+  #it'll also allow grouping of tab slots
+  grp_name='Piece' + str(piece)
+  grp_attribs = {inkex.addNS('label','inkscape'):grp_name}
+  grp = inkex.etree.SubElement(parent, 'g', grp_attribs) #the group to put everything in
+  return grp
+  
 def drawS(XYstring,grp):         # Draw lines from a list
   name= 'part'
   style = { 'stroke': '#000000', 'fill': 'none' }
   drw = {'style':simplestyle.formatStyle(style),inkex.addNS('label','inkscape'):name,'d':XYstring}
   inkex.etree.SubElement(grp, inkex.addNS('path','svg'), drw )
   return
+  
+def drawR((rx,ry),(dx,dy),grp): 
+  #draw a rectange
+  #place corner of rectangle at (rx,ry)
+  #it will have dimensions of (dx,dy)
+  #the rectangle will be placed in group grp
+  style = { 'stroke': '#000000', 'fill': 'none' }
+  attribs = {
+    'style'    : simplestyle.formatStyle(style),
+    'height'   : str(dy),
+    'width'    : str(dx),
+    'x'        : str(rx),
+    'y'        : str(ry)
+          }
+  rect= inkex.etree.SubElement(grp, inkex.addNS('rect','svg'),attribs)
+  
+def slots((rx,ry),(sox,soy),length,side,grp):
+  ##(rx,ry) are the root coordinates for each corner of the bounding box
+  #(sox,soy) are -1,0, or 1.  They are factors that indicated the offset of the first point on each side
+  #length is the total length of each side of the bounding box
+  #side is an integer 0 to 3
+  # 0 is side a
+  # 1 is side b
+  # 2 is side c
+  # 3 is side d
+    
+  #Ensure there are an odd number of divisions
+  divs=int(length/nomTab)  # divisions
+  if not divs%2: divs-=1   # make divs odd
+  divs=float(divs)
+  tabs=(divs-1)/2          # tabs for side
+  if debug:
+    message = "Divisions per side = " + str(divs)
+    inkex.debug(message)
+
+  #Removing Proportional Tabs as an option
+  #only fixed width tabs now
+  gapWidth=tabWidth=length/divs
+  
+  # kerf correction
+  shortTab=tabWidth + correction/2
+  shortGap=gapWidth - correction/2
+  gapWidth-=correction
+  tabWidth+=correction
+  
+  #debug info
+  if debug:
+    message1 = "Gap Width = " + str(gapWidth)
+    message2 = "Tab Width = " + str(tabWidth)
+    message3 = "Short Gap = " + str(shortGap)
+    message4 = "Short Tab = " + str(shortTab)
+    inkex.debug(message1)
+    inkex.debug(message2)
+    inkex.debug(message3)
+    inkex.debug(message4)
+    
+  #calculate first position
+  (Vx,Vy)=(rx+sox*thickness,ry+soy*thickness)
+    
+    #actions depend on sides
+  if side == 0:
+    #this is side A
+    #direction of travel is positive x
+    #Every slot will start at an a Y coord of
+    #  ry
+    Vy = ry
+    #every slot will be of height thickness
+    #middle slots will be gapwidth wide
+    #end slots may be modified
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move +x for a Tab
+      Vx+=shortTab
+      #if we start with a tab, we end with a tab
+      #there will be one less gap
+      gapcount = (int(divs)-1)/2
+      for i in range(0,gapcount):
+        #create a rectangle at each of gaps
+        #no special widths because tabs are on the ends
+        drawR((Vx,Vy),(gapWidth,thickness),grp)
+        #after every rectangle, move +x
+        #move amount: gapwidth + tabwith
+        Vx+=gapWidth + tabWidth
+        #increment loop counter
+        i+=1
+      
+    elif sox ==0 and soy ==1:
+      #in this case, offset y and not x
+      #cut a first gap
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+      #the next gap should be after this gap, plus room for the tab
+      Vx+=shortGap + tabWidth
+      #start with a gap means more gaps than tabs
+      #total gaps = (divs+1)/2
+      #because the first and last will be modified
+      #gap count should be that total, less two
+      gapcount = (int(divs)+1)/2-2
+      for i in range(0,gapcount):
+        #create a rectangle at each gap
+        #all constant width
+        drawR((Vx,Vy),(gapWidth,thickness),grp)
+        #after every rectangle, move +x
+        #move amount: gapwidth+tabwidth
+        Vx+= gapWidth + tabWidth
+        #increment loop counter
+        i+=1
+      #draw a final gap, equal length to first
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+    
+    elif sox == 1 and soy ==1:
+      #in this case, offset x and y
+      #first move +x for gap
+      #this gap isn't modified because it mates with a full width tab
+      #we need to reset the starting point to the root position
+      Vx = rx
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+      #the next gap should be after this gap, plus tab
+      Vx+=shortGap + tabWidth
+      #same gap count as previous case
+      gapcount = (int(divs)+1)/2-2
+      for i in range(0,gapcount):
+        #create rectangle at each pag
+        #all constant width
+        drawR((Vx,Vy),(gapWidth,thickness),grp)
+        #after every rectangle, move +x
+        #move amount: gapwidth+tabwidth
+        Vx+= gapWidth + tabWidth
+        #increment loop counter
+        i+=1
+      #draw a final gap, equal length to first
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+    if debug:
+      message = "Final X value is " + str(Vx)
+      inkex.debug(message)
+      
+  elif side ==1:
+    #this is side b
+    #direction of travel is positive y
+    #Every rectangle will start at an x position of 
+    # rx - thickness
+    Vx = rx - thickness
+    #each will have an x width of thickness
+    
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move +y for a Tab
+      Vy+=shortTab
+      #with tabs on the ends
+      #all tabs will be equal length
+      gapcount = (int(divs)-1)/2
+      for i in range(0,gapcount):
+        drawR((Vx,Vy),(thickness,gapWidth),grp)
+        #increment +y position
+        Vy += gapWidth + tabWidth
+        #increment counter
+        i += 1
+        
+    elif sox ==0 and soy ==1:
+      #in this case, offset y and not x
+      # first move +y for a Tab
+      # modified length by thickness
+      shortTab-=thickness
+      Vy+=shortTab
+      #with tabs on ends
+      #all tabs will be equal length
+      gapcount = (int(divs)-1)/2
+      for i in range(0,gapcount):
+        drawR((Vx,Vy),(thickness,gapWidth),grp)
+        #increment +y position
+        Vy += gapWidth + tabWidth
+        #increment counter
+        i+= 1
+            
+    elif sox == -1 and soy ==1:
+      #in this case, offset x and y
+      #First draw gap
+      #modified distance due to offset
+      shortGap-=thickness
+      drawR((Vx,Vy),(thickness,shortGap),grp)
+      #move starting point for next rect
+      Vy+=shortGap + tabWidth
+      #more gaps than tabs
+      #first and last are not included in loop
+      gapcount = (int(divs)+1)/2 -2
+      for i in range(0,gapcount):
+        #draw rectangle of constant width
+        drawR((Vx,Vy),(thickness,gapWidth),grp)
+        #increment y position
+        Vy += gapWidth + tabWidth
+        #increment counter
+        i += 1
+        
+      #draw final rectangle
+      drawR((Vx,Vy),(thickness,shortGap),grp)
+    if debug:
+      message = "Final Y value is " + str(Vy)
+      inkex.debug(message)
+  elif side == 2:
+    #this is side c
+    #direction of travel is negative x
+    #because negative width isn't allowed in SVG
+    #we have to travel to far in the negative x direction
+    #then specify the width in positive values
+    #every rectangle will start at y position
+    #ry - thickness
+    Vy = ry - thickness
+
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move -x for a Tab
+      #then move -x for width of gap
+      Vx-=shortTab + gapWidth
+      #tabs on ends means fewer gaps
+      #all gaps the same width
+      gapcount = (int(divs)-1)/2
+      for i in range(0,gapcount):
+        drawR((Vx,Vy),(gapWidth,thickness),grp)
+        #increment Vx
+        Vx-= gapWidth + tabWidth
+        #increment counter
+        i += 1
+        
+    elif sox ==0 and soy ==-1:
+      #in this case, offset y and not x
+      # first move -x for a gap
+      Vx-=shortGap
+      #draw a first/last rectangle
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+      #gaps on ends means more gaps
+      #but first and last are special length
+      gapcount = (int(divs)+1)/2 -2
+      for i in range(0,gapcount):
+        #increment Vx
+        Vx-= gapWidth+tabWidth
+        #add rectangle
+        drawR((Vx,Vy),(gapWidth,thickness),grp)
+        #increment counter
+        i += 1
+      #draw final rectangle
+      #increment over short gap width
+      Vx -= shortGap + tabWidth
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+        
+    elif sox == -1 and soy == -1:
+      #in this case, offset x and y
+      #first move -x for gap
+      #in this case, this isn't offset by thickness
+      #because it mates up with a full length tab
+      #also, we need to reset to the root position
+      Vx=rx
+      #move to far side of gap
+      Vx-=shortGap
+      #draw first rectangle
+      drawR((Vx,Vy),(shortGap,thickness),grp)
+      #gaps on ends mean more gaps
+      #but first and last are special length
+      gapcount = (int(divs)+1)/2 -2
+      for i in range(0,gapcount):
+        #increment Vx
+        Vx -= gapWidth + tabWidth
+        #add rectangle
+        drawR((Vx,Vy),(gapWidth,thickness),grp)
+        #increment counter
+        i+=1
+      #draw final rectangle
+      #increment first/last gap width
+      Vx -= shortGap + tabWidth
+      drawR((Vx,Vy),(gapWidth,thickness),grp)
+    
+    if debug:
+      message = "Final X value is " + str(Vx)
+      inkex.debug(message)
+  elif side == 3:
+    #this is side d
+    #direction of travel is negative y
+    #because negative height isn't allowed in SVG
+    #we travel past the rectangle and specify a positive height
+    #all rectangles will be located at an x position of
+    #  rx
+    Vx = rx
+    
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move -y for a Tab"
+      #additionally move past the gap in the y
+      Vy-=shortTab + gapWidth
+      #because tabs on end, fewer gaps
+      #all gaps same width
+      gapcount = (int(divs)-1)/2
+      for i in range(0,gapcount):
+        #draw rectangles
+        drawR((Vx,Vy),(thickness,gapWidth),grp)
+        #increment Vy
+        Vy -= tabWidth + gapWidth
+        #increment counter
+        i =+ 1
+    elif sox ==0 and soy ==-1:
+      #in this case, offset y and not x
+      # first move -y for a Tab
+      # modified length by thickness
+      shortTab-=thickness
+      Vy-=shortTab
+      #move past gap in y
+      Vy -= gapWidth
+      #tabs on end, all gaps equal size
+      gapcount = (int(divs)-1)/2
+      for i in range(0,gapcount):
+        #draw rectangle
+        drawR((Vx,Vy),(thickness,gapWidth),grp)
+        #increment Vy
+        Vy -= gapWidth + tabWidth
+        #increment counter
+        i += 1
+        
+    elif sox == 1 and soy ==-1:
+      #in this case, offset x and y
+      #first move -y for gap
+      #modified distance due to offset
+      shortGap-=thickness
+      Vy-=shortGap
+      #draw first rectangle with first/last length
+      drawR((Vx,Vy),(thickness, shortGap),grp)
+      #gaps on ends mean more gaps
+      #but first and last are different
+      gapcount = (int(divs)+1)/2 -2
+      for i in range(0,gapcount):
+        #increment by tab + gap
+        Vy -= gapWidth + tabWidth
+        #draw rect
+        drawR((Vx,Vy),(thickness,gapWidth),grp)
+        #increment counter
+        i+=1
+      #increment last amount
+      Vy -= shortGap + tabWidth
+      drawR((Vx,Vy),(thickness,shortGap),grp)
+      
+    if debug:
+      message = "Final Y value is " + str(Vy)
+      inkex.debug(message)
+      
+   
 
 def newSide((rx,ry),(sox,soy),length,side):
   #(rx,ry) are the root coordinates for each corner of the bounding box
@@ -81,9 +422,9 @@ def newSide((rx,ry),(sox,soy),length,side):
   divs=float(divs)
   tabs=(divs-1)/2          # tabs for side
   if debug:
-	  message = "Divisions per side = " + str(divs)
-	  inkex.debug(message)
-	  
+    message = "Divisions per side = " + str(divs)
+    inkex.debug(message)
+    
   #Removing Proportional Tabs as an option
   #only fixed width tabs now
   gapWidth=tabWidth=length/divs
@@ -109,16 +450,24 @@ def newSide((rx,ry),(sox,soy),length,side):
   gapWidth-=correction
   tabWidth+=correction
   
+  #calculate first position
+  (Vx,Vy)=(rx+sox*thickness,ry+soy*thickness)
+  if debug:
+    message1 = "Start X at: " + str(Vx)
+    message2 = "Start Y at: " + str(Vy)
+    inkex.debug(message1)
+    inkex.debug(message2)
+  
   #debug info
   if debug:
-	  message1 = "Gap Width = " + str(gapWidth)
-	  message2 = "Tab Width = " + str(tabWidth)
-	  message3 = "Short Gap = " + str(shortGap)
-	  message4 = "Short Tab = " + str(shortTab)
-	  inkex.debug(message1)
-	  inkex.debug(message2)
-	  inkex.debug(message3)
-	  inkex.debug(message4)
+    message1 = "Gap Width = " + str(gapWidth)
+    message2 = "Tab Width = " + str(tabWidth)
+    message3 = "Short Gap = " + str(shortGap)
+    message4 = "Short Tab = " + str(shortTab)
+    inkex.debug(message1)
+    inkex.debug(message2)
+    inkex.debug(message3)
+    inkex.debug(message4)
     
   
   # Create an empty string  
@@ -127,288 +476,288 @@ def newSide((rx,ry),(sox,soy),length,side):
   #calculate first position
   (Vx,Vy)=(rx+sox*thickness,ry+soy*thickness)
   if debug:
-	  message1 = "Start X at: " + str(Vx)
-	  message2 = "Start Y at: " + str(Vy)
-	  inkex.debug(message1)
-	  inkex.debug(message2)
-	  
-  #write the start position to the string	  
+    message1 = "Start X at: " + str(Vx)
+    message2 = "Start Y at: " + str(Vy)
+    inkex.debug(message1)
+    inkex.debug(message2)
+    
+  #write the start position to the string    
   s='m '+str(Vx)+','+str(Vy)+' '
   
   #actions depend on sides
   if side == 0:
-	  #this is side A
-	  #direction of travel is positive x
-	  #first pass
-	  if sox == 0 and soy == 0:
-		  #in this case, root position
-		  #first move +x for a Tab
-		  s+= str(shortTab) + ",0 "
-		  Vx+=shortTab
-		  lastMov=shortTab
-		  mov = 1
-	  elif sox ==0 and soy ==1:
-		  #in this case, offset y and not x
-		  # first move +x for a gap
-		  s+= str(shortGap) + ",0 "
-		  Vx+=shortGap
-		  lastMov=shortGap
-		  mov = 3		  
-	  elif sox == 1 and soy ==1:
-		  #in this case, offset x and y
-		  #first move +x for gap
-		  #modified distance due to offset
-		  shortGap-=thickness
-		  s+= str(shortGap) + ",0 "
-		  Vx+=shortGap
-		  lastMov=shortGap
-		  mov = 3
-	  #next iterate over the side
-	  #there are always 2*divs-1 number of segments
-	  #the first segment is handled above
-	  #the last segment will be different, and handled after
-	  #this for loop will handle all but the first and last segments
-	  #there should be 2*divs-3 number of segments in it
-	  for i in range(0,2*int(divs)-3):
-		  #keep cycling while not finished
-		  #write relative coordinates for subsequent segements
-		  if debug:
-			  message = "Current X Value is " + str(Vx)
-			  inkex.debug(message)
-		  if mov == 3:
-			  #in this case, move -y
-			  s+= "0,-" + str(thickness) + " "
-			  mov=0
-		  elif mov ==2:
-			  #in this case, move +x for gap
-			  s+= str(gapWidth) + ",0 "
-			  Vx+=gapWidth
-			  mov += 1
-		  elif mov == 1:
-			  # in this case, move +y
-			  s+= "0," + str(thickness) + " "
-			  mov+=1
-		  elif mov == 0:
-			  #in this case, move +x for tab
-			  s+= str(tabWidth) + ",0 "
-			  Vx+=tabWidth
-			  mov += 1
-		  #increment loop counter
-		  i+=1
-	  
-	  #the last move is always a move in the +x direction
-	  #a short move
-	  Vx+=lastMov
-	  s+= str(lastMov) + ",0 "
-	  if debug:
-		  message = "Final X value is " + str(Vx)
-		  inkex.debug(message)
-	    
+    #this is side A
+    #direction of travel is positive x
+    #first pass
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move +x for a Tab
+      s+= str(shortTab) + ",0 "
+      Vx+=shortTab
+      lastMov=shortTab
+      mov = 1
+    elif sox ==0 and soy ==1:
+      #in this case, offset y and not x
+      # first move +x for a gap
+      s+= str(shortGap) + ",0 "
+      Vx+=shortGap
+      lastMov=shortGap
+      mov = 3      
+    elif sox == 1 and soy ==1:
+      #in this case, offset x and y
+      #first move +x for gap
+      #modified distance due to offset
+      shortGap-=thickness
+      s+= str(shortGap) + ",0 "
+      Vx+=shortGap
+      lastMov=shortGap
+      mov = 3
+    #next iterate over the side
+    #there are always 2*divs-1 number of segments
+    #the first segment is handled above
+    #the last segment will be different, and handled after
+    #this for loop will handle all but the first and last segments
+    #there should be 2*divs-3 number of segments in it
+    for i in range(0,2*int(divs)-3):
+      #keep cycling while not finished
+      #write relative coordinates for subsequent segements
+      if debug:
+        message = "Current X Value is " + str(Vx)
+        inkex.debug(message)
+      if mov == 3:
+        #in this case, move -y
+        s+= "0,-" + str(thickness) + " "
+        mov=0
+      elif mov ==2:
+        #in this case, move +x for gap
+        s+= str(gapWidth) + ",0 "
+        Vx+=gapWidth
+        mov += 1
+      elif mov == 1:
+        # in this case, move +y
+        s+= "0," + str(thickness) + " "
+        mov+=1
+      elif mov == 0:
+        #in this case, move +x for tab
+        s+= str(tabWidth) + ",0 "
+        Vx+=tabWidth
+        mov += 1
+      #increment loop counter
+      i+=1
+    
+    #the last move is always a move in the +x direction
+    #a short move
+    Vx+=lastMov
+    s+= str(lastMov) + ",0 "
+    if debug:
+      message = "Final X value is " + str(Vx)
+      inkex.debug(message)
+      
   elif side ==1:
-	  #this is side b
-	  #direction of travel is positive y
-	  #first pass
-	  if sox == 0 and soy == 0:
-		  #in this case, root position
-		  #first move +y for a Tab
-		  s+= "0," + str(shortTab) + " "
-		  Vy+=shortTab
-		  lastMov=shortTab
-		  mov = 1
-	  elif sox ==0 and soy ==1:
-		  #in this case, offset y and not x
-		  # first move +y for a Tab
-		  # modified length by thickness
-		  shortTab-=thickness
-		  s+= "0," + str(shortTab) + " "
-		  Vy+=shortTab
-		  lastMov=shortTab
-		  mov = 1		  
-	  elif sox == -1 and soy ==1:
-		  #in this case, offset x and y
-		  #first move +y for gap
-		  #modified distance due to offset
-		  shortGap-=thickness
-		  s+= "0," + str(shortGap) + " "
-		  Vy+=shortGap
-		  lastMov=shortGap
-		  mov = 3
-	  #next iterate over the side
-	  #there are always 2*divs-1 number of segments
-	  #the first segment is handled above
-	  #the last segment will be different, and handled after
-	  #this for loop will handle all but the first and last segments
-	  #there should be 2*divs-3 number of segments in it
-	  for i in range(0,2*int(divs)-3):
-		  #keep cycling while not finished
-		  #write relative coordinates for subsequent segements
-		  if debug:
-			  message = "Current Y Value is " + str(Vy)
-			  inkex.debug(message)
-		  if mov == 3:
-			  #in this case, go +x
-			  s+= str(thickness) + ",0 "
-			  mov=0
-		  elif mov ==2:
-			  #in this case, move +y for gap
-			  s+= "0," + str(gapWidth) + " "
-			  Vy+=gapWidth
-			  mov += 1
-		  elif mov == 1:
-			  # in this case, move -x
-			  s+= "-" + str(thickness) + ",0 "
-			  mov+=1
-		  elif mov == 0:
-			  #in this case, move +y for tab
-			  s+= "0," + str(tabWidth) + " "
-			  Vy+=tabWidth
-			  mov += 1
-		  #increment loop counter
-		  i+=1
-	  
-	  #the last move is always a move in the +y direction
-	  #a short move
-	  Vy+=lastMov
-	  s+= "0," + str(lastMov) + " "
-	  if debug:
-		  message = "Final Y value is " + str(Vy)
-		  inkex.debug(message)
+    #this is side b
+    #direction of travel is positive y
+    #first pass
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move +y for a Tab
+      s+= "0," + str(shortTab) + " "
+      Vy+=shortTab
+      lastMov=shortTab
+      mov = 1
+    elif sox ==0 and soy ==1:
+      #in this case, offset y and not x
+      # first move +y for a Tab
+      # modified length by thickness
+      shortTab-=thickness
+      s+= "0," + str(shortTab) + " "
+      Vy+=shortTab
+      lastMov=shortTab
+      mov = 1      
+    elif sox == -1 and soy ==1:
+      #in this case, offset x and y
+      #first move +y for gap
+      #modified distance due to offset
+      shortGap-=thickness
+      s+= "0," + str(shortGap) + " "
+      Vy+=shortGap
+      lastMov=shortGap
+      mov = 3
+    #next iterate over the side
+    #there are always 2*divs-1 number of segments
+    #the first segment is handled above
+    #the last segment will be different, and handled after
+    #this for loop will handle all but the first and last segments
+    #there should be 2*divs-3 number of segments in it
+    for i in range(0,2*int(divs)-3):
+      #keep cycling while not finished
+      #write relative coordinates for subsequent segements
+      if debug:
+        message = "Current Y Value is " + str(Vy)
+        inkex.debug(message)
+      if mov == 3:
+        #in this case, go +x
+        s+= str(thickness) + ",0 "
+        mov=0
+      elif mov ==2:
+        #in this case, move +y for gap
+        s+= "0," + str(gapWidth) + " "
+        Vy+=gapWidth
+        mov += 1
+      elif mov == 1:
+        # in this case, move -x
+        s+= "-" + str(thickness) + ",0 "
+        mov+=1
+      elif mov == 0:
+        #in this case, move +y for tab
+        s+= "0," + str(tabWidth) + " "
+        Vy+=tabWidth
+        mov += 1
+      #increment loop counter
+      i+=1
+    
+    #the last move is always a move in the +y direction
+    #a short move
+    Vy+=lastMov
+    s+= "0," + str(lastMov) + " "
+    if debug:
+      message = "Final Y value is " + str(Vy)
+      inkex.debug(message)
   elif side == 2:
-	  #this is side c
-	  #direction of travel is negative x
-	  #first pass
-	  if sox == 0 and soy == 0:
-		  #in this case, root position
-		  #first move -x for a Tab
-		  s+= "-" + str(shortTab) + ",0 "
-		  Vx-=shortTab
-		  lastMov=shortTab
-		  mov = 1
-	  elif sox ==0 and soy ==-1:
-		  #in this case, offset y and not x
-		  # first move -x for a gap
-		  s+= "-" + str(shortGap) + ",0 "
-		  Vx-=shortGap
-		  lastMov=shortGap
-		  mov = 3		  
-	  elif sox == -1 and soy == -1:
-		  #in this case, offset x and y
-		  #first move -x for gap
-		  #modified distance due to offset
-		  shortGap-=thickness
-		  s+= "-" + str(shortGap) + ",0 "
-		  Vx-=shortGap
-		  lastMov=shortGap
-		  mov = 3
-	  #next iterate over the side
-	  #there are always 2*divs-1 number of segments
-	  #the first segment is handled above
-	  #the last segment will be different, and handled after
-	  #this for loop will handle all but the first and last segments
-	  #there should be 2*divs-3 number of segments in it
-	  for i in range(0,2*int(divs)-3):
-		  #keep cycling while not finished
-		  #write relative coordinates for subsequent segements
-		  if debug:
-			  message = "Current X Value is " + str(Vx)
-			  inkex.debug(message)
-		  if mov == 3:
-			  #in this case, move +y
-			  s+= "0," + str(thickness) + " "
-			  mov=0
-		  elif mov ==2:
-			  #in this case, move -x for gap
-			  s+= "-" + str(gapWidth) + ",0 "
-			  Vx-=gapWidth
-			  mov += 1
-		  elif mov == 1:
-			  # in this case, move -y
-			  s+= "0,-" + str(thickness) + " "
-			  mov+=1
-		  elif mov == 0:
-			  #in this case, move -x for tab
-			  s+= "-" + str(tabWidth) + ",0 "
-			  Vx-=tabWidth
-			  mov += 1
-		  #increment loop counter
-		  i+=1
-	  
-	  #the last move is always a move in the -x direction
-	  #a short move
-	  Vx-=lastMov
-	  s+= "-" + str(lastMov) + ",0 "
-	  if debug:
-		  message = "Final X value is " + str(Vx)
-		  inkex.debug(message)
+    #this is side c
+    #direction of travel is negative x
+    #first pass
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move -x for a Tab
+      s+= "-" + str(shortTab) + ",0 "
+      Vx-=shortTab
+      lastMov=shortTab
+      mov = 1
+    elif sox ==0 and soy ==-1:
+      #in this case, offset y and not x
+      # first move -x for a gap
+      s+= "-" + str(shortGap) + ",0 "
+      Vx-=shortGap
+      lastMov=shortGap
+      mov = 3      
+    elif sox == -1 and soy == -1:
+      #in this case, offset x and y
+      #first move -x for gap
+      #modified distance due to offset
+      shortGap-=thickness
+      s+= "-" + str(shortGap) + ",0 "
+      Vx-=shortGap
+      lastMov=shortGap
+      mov = 3
+    #next iterate over the side
+    #there are always 2*divs-1 number of segments
+    #the first segment is handled above
+    #the last segment will be different, and handled after
+    #this for loop will handle all but the first and last segments
+    #there should be 2*divs-3 number of segments in it
+    for i in range(0,2*int(divs)-3):
+      #keep cycling while not finished
+      #write relative coordinates for subsequent segements
+      if debug:
+        message = "Current X Value is " + str(Vx)
+        inkex.debug(message)
+      if mov == 3:
+        #in this case, move +y
+        s+= "0," + str(thickness) + " "
+        mov=0
+      elif mov ==2:
+        #in this case, move -x for gap
+        s+= "-" + str(gapWidth) + ",0 "
+        Vx-=gapWidth
+        mov += 1
+      elif mov == 1:
+        # in this case, move -y
+        s+= "0,-" + str(thickness) + " "
+        mov+=1
+      elif mov == 0:
+        #in this case, move -x for tab
+        s+= "-" + str(tabWidth) + ",0 "
+        Vx-=tabWidth
+        mov += 1
+      #increment loop counter
+      i+=1
+    
+    #the last move is always a move in the -x direction
+    #a short move
+    Vx-=lastMov
+    s+= "-" + str(lastMov) + ",0 "
+    if debug:
+      message = "Final X value is " + str(Vx)
+      inkex.debug(message)
   elif side == 3:
-	  #this is side d
-	  #direction of travel is negative y
-	  #first pass
-	  if sox == 0 and soy == 0:
-		  #in this case, root position
-		  #first move -y for a Tab
-		  s+= "0,-" + str(shortTab) + " "
-		  Vy-=shortTab
-		  lastMov=shortTab
-		  mov = 1
-	  elif sox ==0 and soy ==-1:
-		  #in this case, offset y and not x
-		  # first move -y for a Tab
-		  # modified length by thickness
-		  shortTab-=thickness
-		  s+= "0,-" + str(shortTab) + " "
-		  Vy-=shortTab
-		  lastMov=shortTab
-		  mov = 1		  
-	  elif sox == 1 and soy ==-1:
-		  #in this case, offset x and y
-		  #first move -y for gap
-		  #modified distance due to offset
-		  shortGap-=thickness
-		  s+= "0,-" + str(shortGap) + " "
-		  Vy-=shortGap
-		  lastMov=shortGap
-		  mov = 3
-	  #next iterate over the side
-	  #there are always 2*divs-1 number of segments
-	  #the first segment is handled above
-	  #the last segment will be different, and handled after
-	  #this for loop will handle all but the first and last segments
-	  #there should be 2*divs-3 number of segments in it
-	  for i in range(0,2*int(divs)-3):
-		  #keep cycling while not finished
-		  #write relative coordinates for subsequent segements
-		  if debug:
-			  message = "Current Y Value is " + str(Vy)
-			  inkex.debug(message)
-		  if mov == 3:
-			  #in this case, go -x
-			  s+= "-" + str(thickness) + ",0 "
-			  mov=0
-		  elif mov ==2:
-			  #in this case, move -y for gap
-			  s+= "0,-" + str(gapWidth) + " "
-			  Vy-=gapWidth
-			  mov += 1
-		  elif mov == 1:
-			  # in this case, move +x
-			  s+= str(thickness) + ",0 "
-			  mov+=1
-		  elif mov == 0:
-			  #in this case, move -y for tab
-			  s+= "0,-" + str(tabWidth) + " "
-			  Vy-=tabWidth
-			  mov += 1
-		  #increment loop counter
-		  i+=1
-	  
-	  #the last move is always a move in the -y direction
-	  #a short move
-	  Vy-=lastMov
-	  s+= "0,-" + str(lastMov) + " "
-	  if debug:
-		  message = "Final Y value is " + str(Vy)
-		  inkex.debug(message)
+    #this is side d
+    #direction of travel is negative y
+    #first pass
+    if sox == 0 and soy == 0:
+      #in this case, root position
+      #first move -y for a Tab
+      s+= "0,-" + str(shortTab) + " "
+      Vy-=shortTab
+      lastMov=shortTab
+      mov = 1
+    elif sox ==0 and soy ==-1:
+      #in this case, offset y and not x
+      # first move -y for a Tab
+      # modified length by thickness
+      shortTab-=thickness
+      s+= "0,-" + str(shortTab) + " "
+      Vy-=shortTab
+      lastMov=shortTab
+      mov = 1      
+    elif sox == 1 and soy ==-1:
+      #in this case, offset x and y
+      #first move -y for gap
+      #modified distance due to offset
+      shortGap-=thickness
+      s+= "0,-" + str(shortGap) + " "
+      Vy-=shortGap
+      lastMov=shortGap
+      mov = 3
+    #next iterate over the side
+    #there are always 2*divs-1 number of segments
+    #the first segment is handled above
+    #the last segment will be different, and handled after
+    #this for loop will handle all but the first and last segments
+    #there should be 2*divs-3 number of segments in it
+    for i in range(0,2*int(divs)-3):
+      #keep cycling while not finished
+      #write relative coordinates for subsequent segements
+      if debug:
+        message = "Current Y Value is " + str(Vy)
+        inkex.debug(message)
+      if mov == 3:
+        #in this case, go -x
+        s+= "-" + str(thickness) + ",0 "
+        mov=0
+      elif mov ==2:
+        #in this case, move -y for gap
+        s+= "0,-" + str(gapWidth) + " "
+        Vy-=gapWidth
+        mov += 1
+      elif mov == 1:
+        # in this case, move +x
+        s+= str(thickness) + ",0 "
+        mov+=1
+      elif mov == 0:
+        #in this case, move -y for tab
+        s+= "0,-" + str(tabWidth) + " "
+        Vy-=tabWidth
+        mov += 1
+      #increment loop counter
+      i+=1
+    
+    #the last move is always a move in the -y direction
+    #a short move
+    Vy-=lastMov
+    s+= "0,-" + str(lastMov) + " "
+    if debug:
+      message = "Final Y value is " + str(Vy)
+      inkex.debug(message)
   
   return s
     
@@ -444,6 +793,8 @@ class BoxMaker(inkex.Effect):
         dest='style',default=25,help='Layout/Style')
       self.OptionParser.add_option('--spacing',action='store',type='float',
         dest='spacing',default=25,help='Part Spacing')
+      self.OptionParser.add_option('--slotside',action='store',type='int',
+        dest='slotside',default=0,help='Side to replace with slots')
 
 
   def effect(self):
@@ -476,6 +827,7 @@ class BoxMaker(inkex.Effect):
     clearance = inkex.unittouu( str(self.options.clearance)  + unit )
     layout=self.options.style
     spacing = inkex.unittouu( str(self.options.spacing)  + unit )
+    slotside=self.options.slotside
     
     if inside: # if inside dimension selected correct values to outside dimension
       X+=thickness*2
@@ -499,22 +851,22 @@ class BoxMaker(inkex.Effect):
       error=1
     if nomTab<thickness:
       inkex.errormsg(_('Error: Tab size too small'))
-      error=1	  
+      error=1    
     if thickness==0:
       inkex.errormsg(_('Error: Thickness is zero'))
-      error=1	  
+      error=1    
     if thickness>min(X,Y,Z)/3: # crude test
       inkex.errormsg(_('Error: Material too thick'))
-      error=1	  
+      error=1    
     if correction>min(X,Y,Z)/3: # crude test
       inkex.errormsg(_('Error: Kerf/Clearence too large'))
-      error=1	  
+      error=1    
     if spacing>max(X,Y,Z)*10: # crude test
       inkex.errormsg(_('Error: Spacing too large'))
-      error=1	  
+      error=1    
     if spacing<kerf:
       inkex.errormsg(_('Error: Spacing too small'))
-      error=1	  
+      error=1    
 
     if error: exit()
    
@@ -550,9 +902,10 @@ class BoxMaker(inkex.Effect):
       pieces=[[(2,0,0,1),(2,0,1,0),X,Z,0b1010],[(1,0,0,0),(1,0,0,0),Z,Y,0b1111],
               [(2,0,0,1),(1,0,0,0),X,Y,0b0000]]
     elif layout==3: # Inline(compact) Layout
-      pieces=[[(1,0,0,0),(1,0,0,0),X,Y,0b0000],[(2,1,0,0),(1,0,0,0),X,Y,0b0000],
-              [(3,2,0,0),(1,0,0,0),Z,Y,0b1111],[(4,2,0,1),(1,0,0,0),Z,Y,0b1111],
-              [(5,2,0,2),(1,0,0,0),X,Z,0b1010],[(6,3,0,2),(1,0,0,0),X,Z,0b1010]]
+      pieces=[[(5,2,0,2),(1,0,0,0),X,Z,0b1010],[(3,2,0,0),(1,0,0,0),Z,Y,0b1111],
+              [(1,0,0,0),(1,0,0,0),X,Y,0b0000],[(4,2,0,1),(1,0,0,0),Z,Y,0b1111],
+              [(2,1,0,0),(1,0,0,0),X,Y,0b0000],[(6,3,0,2),(1,0,0,0),X,Z,0b1010]]
+    #Re
     #Removing alternating tabs layout.  Asymmetry is evil and should be destroyed.
     #elif layout==4: # Diagramatic Layout with Alternate Tab Arrangement
     #  pieces=[[(2,0,0,1),(3,0,1,1),X,Z,0b1001],[(1,0,0,0),(2,0,0,1),Z,Y,0b1100],
@@ -585,10 +938,22 @@ class BoxMaker(inkex.Effect):
       #first, create a group for all 4 sides to be placed in
       grp=addGroup(groupcount)
       
-      drawS(newSide((x,y),(d,a),dx,0),grp) # side a
-      drawS(newSide((x+dx,y),(-b,a),dy,1),grp) #side b
-      drawS(newSide((x+dx,y+dy),(-b,-c),dx,2),grp) # side c
-      drawS(newSide((x,y+dy),(d,-c),dy,3),grp)      # side d
+      #Use slotside to determine if a slotted piece needs to be drawn
+      #when slotside == groupcount, that means draw that piece with slots
+      #otherwise, draw a normal side
+      if slotside == groupcount:
+      #in this case, draw a collection of rectangles instead of paths
+        slots((x,y),(d,a),dx,0,grp) #side a
+        slots((x+dx,y),(-b,a),dy,1,grp) #side b
+        slots((x+dx,y+dy),(-b,-c),dx,2,grp) # side c
+        slots((x,y+dy),(d,-c),dy,3,grp)      # side d
+        
+      else:
+        #if slotside does not equal group count, draw a normal side
+        drawS(newSide((x,y),(d,a),dx,0),grp) # side a
+        drawS(newSide((x+dx,y),(-b,a),dy,1),grp) #side b
+        drawS(newSide((x+dx,y+dy),(-b,-c),dx,2),grp) # side c
+        drawS(newSide((x,y+dy),(d,-c),dy,3),grp)      # side d
       
 # Create effect instance and apply it.
 effect = BoxMaker()
