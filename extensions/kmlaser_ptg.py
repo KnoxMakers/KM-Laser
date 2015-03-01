@@ -97,7 +97,7 @@ G01 Z-0.000001 F10000
 """,
 'footer': """(Footer)
 M5 (LOCK)
-G00 X0.0000 Y260.0000 (Move Nozzle out of the way)
+G53 G0 X0 Y255 (Move head out of way)
 M2 (END)
 %"""
 }
