@@ -38,6 +38,10 @@ __version__ = "0.8" ### please report bugs, suggestions etc to bugs@twot.eu ###
 import sys,inkex,simplestyle,gettext
 _ = gettext.gettext
 
+# Support for Inkscape 0.48 and 0.91 unittouu
+if not hasattr(self, 'unittouu'):
+  self.unittouu = inkex.unittouu
+
 def drawS(XYstring):         # Draw lines from a list
   name='part'
   style = { 'stroke': '#000000', 'fill': 'none' }
@@ -142,8 +146,8 @@ class BoxMaker(inkex.Effect):
     svg = self.document.getroot()
     
         # Get the attibutes:
-    widthDoc  = inkex.unittouu(svg.get('width'))
-    heightDoc = inkex.unittouu(svg.get('height'))
+    widthDoc  = self.unittouu(svg.get('width'))
+    heightDoc = self.unittouu(svg.get('height'))
 
         # Create a new layer.
     layer = inkex.etree.SubElement(svg, 'g')
@@ -155,16 +159,16 @@ class BoxMaker(inkex.Effect):
         # Get script's option values.
     unit=self.options.unit
     inside=self.options.inside
-    X = inkex.unittouu( str(self.options.length)  + unit )
-    Y = inkex.unittouu( str(self.options.width) + unit )
-    Z = inkex.unittouu( str(self.options.height)  + unit )
-    thickness = inkex.unittouu( str(self.options.thickness)  + unit )
-    nomTab = inkex.unittouu( str(self.options.tab) + unit )
+    X = self.unittouu( str(self.options.length)  + unit )
+    Y = self.unittouu( str(self.options.width) + unit )
+    Z = self.unittouu( str(self.options.height)  + unit )
+    thickness = self.unittouu( str(self.options.thickness)  + unit )
+    nomTab = self.unittouu( str(self.options.tab) + unit )
     equalTabs=self.options.equal
-    kerf = inkex.unittouu( str(self.options.kerf)  + unit )
-    clearance = inkex.unittouu( str(self.options.clearance)  + unit )
+    kerf = self.unittouu( str(self.options.kerf)  + unit )
+    clearance = self.unittouu( str(self.options.clearance)  + unit )
     layout=self.options.style
-    spacing = inkex.unittouu( str(self.options.spacing)  + unit )
+    spacing = self.unittouu( str(self.options.spacing)  + unit )
     
     if inside: # if inside dimension selected correct values to outside dimension
       X+=thickness*2

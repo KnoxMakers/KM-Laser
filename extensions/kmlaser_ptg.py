@@ -45,6 +45,9 @@ _ = gettext.gettext
 if "errormsg" not in dir(inkex):
     inkex.errormsg = lambda msg: sys.stderr.write((unicode(msg) + "\n").encode("UTF-8"))
 
+# Support for Inkscape 0.48 and 0.91 unittouu
+if not hasattr(self, 'unittouu'):
+    self.unittouu = inkex.unittouu
 
 def bezierslopeatt(((bx0,by0),(bx1,by1),(bx2,by2),(bx3,by3)),t):
     ax,ay,bx,by,cx,cy,x0,y0=bezmisc.bezierparameterize(((bx0,by0),(bx1,by1),(bx2,by2),(bx3,by3)))
@@ -4749,7 +4752,7 @@ class Gcodetools(inkex.Effect):
                 attr["transform"] = transform 
 
             orientation_group = inkex.etree.SubElement(layer, inkex.addNS('g','svg'), attr)
-            doc_height = inkex.unittouu(self.document.getroot().get('height'))
+            doc_height = self.unittouu(self.document.getroot().get('height'))
             if self.document.getroot().get('height') == "100%" :
                 doc_height = 1052.3622047
                 print_("Overruding height from 100 percents to %s" % doc_height)
