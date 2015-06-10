@@ -43,14 +43,6 @@ debug = False
 import sys,inkex,simplestyle,gettext
 _ = gettext.gettext
 
-<<<<<<< HEAD
-# Support for Inkscape 0.48 and 0.91 unittouu
-#if not hasattr(self, 'unittouu'):
-#  self.unittouu = inkex.unittouu
-
-def drawS(XYstring):         # Draw lines from a list
-  name='part'
-=======
 def addGroup(piece): 
   #This adds a group to the current layer
   #we want all 4 segements of a box side to be grouped
@@ -62,7 +54,6 @@ def addGroup(piece):
   
 def drawS(XYstring,grp):         # Draw lines from a list
   name= 'part'
->>>>>>> 640194749d0848e58e88788508a6525a638130de
   style = { 'stroke': '#000000', 'fill': 'none' }
   drw = {'style':simplestyle.formatStyle(style),inkex.addNS('label','inkscape'):name,'d':XYstring}
   inkex.etree.SubElement(grp, inkex.addNS('path','svg'), drw )
@@ -772,9 +763,9 @@ def newSide((rx,ry),(sox,soy),length,side):
     
 class BoxMaker(inkex.Effect):
   def __init__(self):
+    # Support for Inkscape 0.48 and 0.91 unittouu
       if not hasattr(self, 'unittouu'):
-        self.unittouu = inkex.unittouu    
-      # Call the base class constructor.
+        self.unittouu = inkex.unittouu      # Call the base class constructor.
       inkex.Effect.__init__(self)
       # Define options
       self.OptionParser.add_option('--active-tab',action='store',type='string',
@@ -828,30 +819,17 @@ class BoxMaker(inkex.Effect):
         # Get script's option values.
     unit=self.options.unit
     inside=self.options.inside
-<<<<<<< HEAD
     X = self.unittouu( str(self.options.length)  + unit )
     Y = self.unittouu( str(self.options.width) + unit )
     Z = self.unittouu( str(self.options.height)  + unit )
     thickness = self.unittouu( str(self.options.thickness)  + unit )
     nomTab = self.unittouu( str(self.options.tab) + unit )
-    equalTabs=self.options.equal
+    #equalTabs=self.options.equal
     kerf = self.unittouu( str(self.options.kerf)  + unit )
     clearance = self.unittouu( str(self.options.clearance)  + unit )
     layout=self.options.style
     spacing = self.unittouu( str(self.options.spacing)  + unit )
-=======
-    X = inkex.unittouu( str(self.options.length)  + unit )
-    Y = inkex.unittouu( str(self.options.width) + unit )
-    Z = inkex.unittouu( str(self.options.height)  + unit )
-    thickness = inkex.unittouu( str(self.options.thickness)  + unit )
-    nomTab = inkex.unittouu( str(self.options.tab) + unit )
-    #equalTabs=self.options.equal
-    kerf = inkex.unittouu( str(self.options.kerf)  + unit )
-    clearance = inkex.unittouu( str(self.options.clearance)  + unit )
-    layout=self.options.style
-    spacing = inkex.unittouu( str(self.options.spacing)  + unit )
     slotside=self.options.slotside
->>>>>>> 640194749d0848e58e88788508a6525a638130de
     
     if inside: # if inside dimension selected correct values to outside dimension
       X+=thickness*2
