@@ -45,8 +45,8 @@ _ = gettext.gettext
 
 <<<<<<< HEAD
 # Support for Inkscape 0.48 and 0.91 unittouu
-if not hasattr(self, 'unittouu'):
-  self.unittouu = inkex.unittouu
+#if not hasattr(self, 'unittouu'):
+#  self.unittouu = inkex.unittouu
 
 def drawS(XYstring):         # Draw lines from a list
   name='part'
@@ -772,6 +772,8 @@ def newSide((rx,ry),(sox,soy),length,side):
     
 class BoxMaker(inkex.Effect):
   def __init__(self):
+      if not hasattr(self, 'unittouu'):
+        self.unittouu = inkex.unittouu    
       # Call the base class constructor.
       inkex.Effect.__init__(self)
       # Define options
