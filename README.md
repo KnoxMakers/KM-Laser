@@ -13,11 +13,18 @@ __Installation__
 
 Copy all the files from `extensions`, `templates`, and `palettes` to their respective Inkscape directories and then restart Inkscape.
 
-Linux and Mac:
+Linux:
 ```
 $HOME/.config/inkscape/extensions
 $HOME/.config/inkscape/templates
 $HOME/.config/inkscape/palettes
+```
+
+Mac:
+```
+/Applications/Inkscape.app/Contents/Resources/share/inkscape/extensions
+/Applications/Inkscape.app/Contents/Resources/share/inkscape/palettes
+/Applications/Inkscape.app/Contents/Resources/share/inkscape/templates
 ```
 
 Windows:
