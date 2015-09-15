@@ -25,6 +25,11 @@ Mac:
 /Applications/Inkscape.app/Contents/Resources/share/inkscape/extensions
 /Applications/Inkscape.app/Contents/Resources/share/inkscape/palettes
 /Applications/Inkscape.app/Contents/Resources/share/inkscape/templates
+
+Alternatively, try the following locations:
+$HOME/.config/inkscape/extensions
+$HOME/.config/inkscape/templates
+$HOME/.config/inkscape/palettes
 ```
 
 Windows:
