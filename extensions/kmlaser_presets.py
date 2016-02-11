@@ -33,7 +33,7 @@ _presets = {
     },
     "cardboard": {
         "engrave-light": [10000,1500,0.20],
-        "engrave-heavy": [10000,1500,0.44],
+        "engrave-heavy": [10000,1500,0.35],
         "cut": [10000,1000,0.52]
     }
 }
