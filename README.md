@@ -1,6 +1,8 @@
 KM-Laser Bundle
 ===============
-`FOR INKSCAPE VERSIONS 0.91 OR EARLIER SEE THE BRANCH pre_0.92`
+```diff
+- FOR INKSCAPE VERSIONS 0.91 OR EARLIER SEE THE BRANCH pre_0.92
+```
 
 A bundle of Inkscape extensions useful for Laser Cutting/Engraving.
 
