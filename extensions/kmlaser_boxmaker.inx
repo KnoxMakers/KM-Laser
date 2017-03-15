@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>Tabbed Box Maker</_name>
+  <_name>GENERATE: TABBED BOX</_name>
   <id>eu.twot.render.boxmaker</id>
 
   <dependency type="executable" location="extensions">kmlaser_boxmaker.py</dependency>
@@ -65,7 +65,7 @@ http://knoxmakers.org
   <effect>
     <object-type>all</object-type>
     <effects-menu>
-      <submenu _name="KM Laser" />
+      <submenu _name="KM LASER" />
     </effects-menu>
   </effect>
   <script>

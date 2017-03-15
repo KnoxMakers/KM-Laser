@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-    <_name>Hershey Text</_name>
+    <_name>GENERATE: HERSHEY TEXT</_name>
     <id>org.evilmad.render.hershey_revb</id>
 	<dependency type="executable" location="extensions">kmlaser_hershey.py</dependency>
 	<dependency type="executable" location="extensions">kmlaser_hersheydata.py</dependency>
@@ -88,7 +88,7 @@ http://knoxmakers.org
   <effect needs-live-preview="true" needs-document="no">
     <object-type>all</object-type>
     <effects-menu>
-      <submenu _name="KM Laser"/>
+      <submenu _name="KM LASER"/>
     </effects-menu>
   </effect>
     <script>

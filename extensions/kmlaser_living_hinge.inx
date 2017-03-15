@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>Living Hinge</_name>
+  <_name>GENERATE: LIVING HINGE</_name>
   <id>org.knoxmakers.living_hinge</id>
 
   <dependency type="executable" location="extensions">kmlaser_living_hinge.py</dependency>
@@ -27,7 +27,7 @@ The entered value for cut length will be adjusted so that an integer number of w
   <effect>
     <object-type>all</object-type>
     <effects-menu>
-      <submenu _name="KM Laser" />
+      <submenu _name="KM LASER" />
     </effects-menu>
   </effect>
   <script>

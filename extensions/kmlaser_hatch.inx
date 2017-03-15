@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>Hatch fill</_name>
+  <_name>GENERATE: HATCH FILL</_name>
   <id>command.eggbot.contributed.revb1.eggbot_hatch</id>
   <dependency type="extension">org.inkscape.output.svg.inkscape</dependency>
   <dependency type="executable" location="extensions">kmlaser_hatch.py</dependency>
@@ -83,7 +83,7 @@ http://knoxmakers.org
   <effect needs-live-preview="true">
     <object-type>all</object-type>
     <effects-menu>
-      <submenu _name="KM Laser"/>
+      <submenu _name="KM LASER"/>
     </effects-menu>
   </effect>
   <script>

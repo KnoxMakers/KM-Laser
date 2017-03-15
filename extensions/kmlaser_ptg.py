@@ -45,10 +45,6 @@ _ = gettext.gettext
 if "errormsg" not in dir(inkex):
     inkex.errormsg = lambda msg: sys.stderr.write((unicode(msg) + "\n").encode("UTF-8"))
 
-# Support for Inkscape 0.48 and 0.91 unittouu
-#if not hasattr(self, 'unittouu'):
-#    self.unittouu = inkex.unittouu
-
 def bezierslopeatt(((bx0,by0),(bx1,by1),(bx2,by2),(bx3,by3)),t):
     ax,ay,bx,by,cx,cy,x0,y0=bezmisc.bezierparameterize(((bx0,by0),(bx1,by1),(bx2,by2),(bx3,by3)))
     dx=3*ax*(t**2)+2*bx*t+cx
@@ -3209,7 +3205,7 @@ class Gcodetools(inkex.Effect):
         
         if not no_headers :
             postprocessor.gcode = self.header + postprocessor.gcode + self.footer
-
+        
         f = open(self.options.directory+self.options.file, "w")	
         f.write(postprocessor.gcode)
         f.close()							
@@ -3532,6 +3528,8 @@ class Gcodetools(inkex.Effect):
         self.OptionParser.add_option("",   "--pulse-rate",action="store", type="int",dest="pulserate", default="10000", help="Custom Pulse Rate")
         self.OptionParser.add_option("-d", "--directory",	action="store", type="string", dest="directory", default="/home/",help="Directory for gcode file")
         self.OptionParser.add_option("-f", "--filename",	action="store", type="string", dest="file", default="-1.0",help="File name")			
+        self.OptionParser.add_option("", "--filename1",	action="store", type="string", dest="file1", default="-1.0",help="File name")			
+        self.OptionParser.add_option("", "--filename2",	action="store", type="string", dest="file2", default="-1.0",help="File name")			
         self.OptionParser.add_option("",   "--add-numeric-suffix-to-filename", action="store", type="inkbool",	dest="add_numeric_suffix_to_filename", default=True,help="Add numeric suffix to filename")			
         self.OptionParser.add_option("",   "--Zscale",						action="store", type="float", 		dest="Zscale", default="1.0",						help="Scale factor Z")				
         self.OptionParser.add_option("",   "--Zoffset",						action="store", type="float", 		dest="Zoffset", default="0.0",						help="Offset along Z")
@@ -3830,7 +3828,7 @@ class Gcodetools(inkex.Effect):
                 self.footer = defaults['footer']
             self.header += self.options.unit + "\n" 
         else: 
-            self.error(_("Directory does not exist! Please specify existing directory at Preferences tab!"),"error")
+            self.error(_("Directory does not exist! Please specify existing directory in OPTIONS tab!"),"error")
             return False
 
         if self.options.add_numeric_suffix_to_filename :
@@ -4609,7 +4607,7 @@ class Gcodetools(inkex.Effect):
                         for step in range( 0,  int(math.ceil( abs((zs-d)/self.tools[layer][0]["depth step"] )) ) ):
                             z = max(d, zs - abs(self.tools[layer][0]["depth step"]*(step+1)))
                             color = simplestyle.formatColoria(colors[curves[key][0][0]])
-                            if self.options.active_tab == "\"kmlaser-ptg-by-color\"":
+                            if self.options.active_tab == "\"kmlaser-custom\"":
                                 if color.lower() == self.options.ptgcustom1color.lower():
                                     path_order = 1
                                     self.options.pulserate = self.options.ptgcustom1pulse
@@ -4753,7 +4751,8 @@ class Gcodetools(inkex.Effect):
 
             if not hasattr(self, 'unittouu'):
                 self.unittouu = inkex.unittouu
-
+            orientation_scale = 1.0
+			
             orientation_group = inkex.etree.SubElement(layer, inkex.addNS('g','svg'), attr)
             doc_height = self.unittouu(self.document.getroot().get('height'))
             if self.document.getroot().get('height') == "100%" :
@@ -4761,15 +4760,15 @@ class Gcodetools(inkex.Effect):
                 print_("Overruding height from 100 percents to %s" % doc_height)
             if self.options.unit == "G21 (All units in mm)" : 
                 points = [[0.,0.,self.options.Zsurface],[100.,0.,self.options.Zdepth],[0.,100.,0.]]
-                orientation_scale = 3.5433070660
-                print_("orientation_scale < 0 ===> switching to mm units=%0.10f"%orientation_scale )
+                #orientation_scale = 3.5433070660
+                #print_("orientation_scale < 0 ===> switching to mm units=%0.10f"%orientation_scale )
             elif self.options.unit == "G20 (All units in inches)" :
                 points = [[0.,0.,self.options.Zsurface],[5.,0.,self.options.Zdepth],[0.,5.,0.]]
-                orientation_scale = 90
-                print_("orientation_scale < 0 ===> switching to inches units=%0.10f"%orientation_scale )
+                #orientation_scale = 90
+                #print_("orientation_scale < 0 ===> switching to inches units=%0.10f"%orientation_scale )
             if self.options.orientation_points_count == "2" :
                 points = points[:2]
-            print_(("using orientation scale",orientation_scale,"i=",points))
+            #print_(("using orientation scale",orientation_scale,"i=",points))
             for i in points :
                 si = [i[0]*orientation_scale, i[1]*orientation_scale]
                 g = inkex.etree.SubElement(orientation_group, inkex.addNS('g','svg'), {'gcodetools': "Gcodetools orientation point (%s points)" % self.options.orientation_points_count})
@@ -4903,7 +4902,9 @@ class Gcodetools(inkex.Effect):
         # define print_ function 
         global print_
         if self.options.log_create_log :
+			
             try :
+                self.options.log_filename = os.path.join(self.options.directory, self.options.log_filename)
                 if os.path.isfile(self.options.log_filename) : os.remove(self.options.log_filename)
                 f = open(self.options.log_filename,"a")
                 f.write("Gcodetools log file.\nStarted at %s.\n%s\n" % (time.strftime("%d.%m.%Y %H:%M:%S"),options.log_filename))
@@ -4912,98 +4913,30 @@ class Gcodetools(inkex.Effect):
             except :
                 print_  = lambda *x : None 
         else : print_  = lambda *x : None 
-        if self.options.active_tab == '"custom-colors"' :
+        
+        
+        if self.options.active_tab == '"kmlaser-custom"' :
+            self.options.file = self.options.file2
+
+
+        if self.options.active_tab == '"kmlaser-presets"' :
+            self.options.file = self.options.file1
+
+        if self.options.active_tab not in ('"kmlaser-presets"','"kmlaser-custom"'):
+            self.error(_("Please choose the PRESETS or CUSTOM tab to generate gcode."),"warning")
             return
-        else:
 
-            # Get all Gcodetools data from the scene.
+        self.get_info()
+        if self.orientation_points == {} :
+            self.orientation( self.layers[min(1,len(self.layers)-1)] )		
             self.get_info()
-            if self.orientation_points == {} :
-                #self.error(_("Orientation points have not been defined! A default set of orientation points has been automatically added."),"warning")
-                self.orientation( self.layers[min(1,len(self.layers)-1)] )		
-                self.get_info()
-            if self.tools == {} :
-                #self.error(_("Cutting tool has not been defined! A default tool has been automatically added."),"warning")
-                self.options.tools_library_type = "default"
-                self.tools_library( self.layers[min(1,len(self.layers)-1)] )
-                self.get_info()
-
-            self.path_to_gcode()
-
-"""
-			if self.options.active_tab == '"path-to-gcode"' or self.options.active_tab == '"laser-values"': 
-				self.path_to_gcode()		
-			elif self.options.active_tab == '"area_fill"': 
-				self.area_fill()		
-			elif self.options.active_tab == '"area"': 
-				self.area()		
-			elif self.options.active_tab == '"area_artefacts"': 
-				self.area_artefacts()		
-			elif self.options.active_tab == '"dxfpoints"': 
-				self.dxfpoints()		
-			elif self.options.active_tab == '"engraving"': 
-				self.engraving()		
-			elif self.options.active_tab == '"orientation"': 
-				self.orientation()		
-			elif self.options.active_tab == '"graffiti"': 
-				self.graffiti()		
-			elif self.options.active_tab == '"tools_library"': 
-				if self.options.tools_library_type != "check":
-					self.tools_library()
-				else :	
-					self.check_tools_and_op()
-			elif self.options.active_tab == '"lathe"': 
-				self.lathe()
-			elif self.options.active_tab == '"lathe_modify_path"': 
-				self.lathe_modify_path()
-			elif self.options.active_tab == '"update"': 
-				self.update()
-			elif self.options.active_tab == '"offset"': 
-				if self.options.offset_just_get_distance :
-					for layer in self.selected_paths :
-						if len(self.selected_paths[layer]) == 2 :
-							csp1, csp2 = cubicsuperpath.parsePath(self.selected_paths[layer][0].get("d")), cubicsuperpath.parsePath(self.selected_paths[layer][1].get("d"))
-							dist = csp_to_csp_distance(csp1,csp2)
-							print_(dist)
-							draw_pointer( list(csp_at_t(csp1[dist[1]][dist[2]-1],csp1[dist[1]][dist[2]],dist[3]))
-										+list(csp_at_t(csp2[dist[4]][dist[5]-1],csp2[dist[4]][dist[5]],dist[6])),"red","line", comment = math.sqrt(dist[0]))
-					return	
-				if self.options.offset_step == 0 : self.options.offset_step = self.options.offset_radius
-				if self.options.offset_step*self.options.offset_radius <0 : self.options.offset_step *= -1
-				time_ = time.time()
-				offsets_count = 0
-				for layer in self.selected_paths :
-					for path in self.selected_paths[layer] :
-
-						offset = self.options.offset_step/2
-						while abs(offset) <= abs(self.options.offset_radius) :
-							offset_ = csp_offset(cubicsuperpath.parsePath(path.get("d")), offset)				
-							offsets_count += 1
-							if offset_ != [] : 
-								for iii in offset_ :
-									draw_csp([iii], color="Green", width=1)		
-									#print_(offset_)
-							else :
-								print_("------------Reached empty offset at radius %s"% offset )
-								break
-							offset += self.options.offset_step
-				print_()
-				print_("-----------------------------------------------------------------------------------")				
-				print_("-----------------------------------------------------------------------------------")				
-				print_("-----------------------------------------------------------------------------------")				
-				print_()
-				print_("Done in %s"%(time.time()-time_))				
-				print_("Total offsets count %s"%offsets_count)				
-			elif self.options.active_tab == '"arrangement"': 
-				self.arrangement()
-
-			elif self.options.active_tab == '"plasma-prepare-path"': 
-				self.plasma_prepare_path()		
-
-		print_("------------------------------------------")
-		print_("Done in %f seconds"%(time.time()-start_time))
-		print_("End at %s."%time.strftime("%d.%m.%Y %H:%M:%S"))
-"""		
+        if self.tools == {} :
+            self.options.tools_library_type = "default"
+            self.tools_library( self.layers[min(1,len(self.layers)-1)] )
+            self.get_info()
+            
+        
+        self.path_to_gcode()
 
 #						
 gcodetools = Gcodetools()
