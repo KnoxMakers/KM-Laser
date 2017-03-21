@@ -38,7 +38,7 @@ If you installed Inkscape using Homebrew, use the following locations:
 /usr/local/Cellar/inkscape/_0.92.1_/share/inkscape/templates
 /usr/local/Cellar/inkscape/_0.92.1_/share/inkscape/palettes
 
-__Note:__ Replace _0.92.1_ above with the version number of your Inkscape installation
+Note: Replace _0.92.1_ above with the version number of your Inkscape installation
 ```
 
 Windows:
