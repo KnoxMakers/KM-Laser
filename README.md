@@ -32,6 +32,13 @@ Alternatively, try the following locations:
 $HOME/.config/inkscape/extensions
 $HOME/.config/inkscape/templates
 $HOME/.config/inkscape/palettes
+
+If you installed Inkscape using Homebrew, use the following locations:
+/usr/local/Cellar/inkscape/_0.92.1_/share/inkscape/extensions
+/usr/local/Cellar/inkscape/_0.92.1_/share/inkscape/templates
+/usr/local/Cellar/inkscape/_0.92.1_/share/inkscape/palettes
+
+__Note:__ Replace _0.92.1_ above with the version number of your Inkscape installation
 ```
 
 Windows:
@@ -43,7 +50,7 @@ Windows:
 
 === 
 
-A big thank you go out to the following projects that were either included or were the base for the KM Laser Bundle:
+A big thanks go out to the following projects that were either included or were the base for the KM Laser Bundle:
 
 Gcodetools
 http://www.cnc-club.ru/gcodetools
