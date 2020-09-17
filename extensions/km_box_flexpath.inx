@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <name>GENERATE: BOX (FLEX FROM PATH)</name>
+    <id>org.knoxmakers.path2flex</id>
+    <param name="unit" type="optiongroup" appearance="combo" gui-text="Unit">
+        <option value="mm">mm</option>
+        <option value="cm">cm</option>
+        <option value="m">m</option>
+        <option value="km">km</option>
+        <option value="in">in</option>
+        <option value="ft">ft</option>
+        <option value="yd">yd</option>
+        <option value="pt">pt</option>
+        <option value="px">px</option>
+        <option value="pc">pc</option>
+    </param>
+    <param name="thickness" type="float" min="1.0" max="10.0" gui-text="Material thickness">3.0</param>
+    <param name="zc" type="float" min="15.0" max="1000.0" gui-text="Structure height">50.0</param>
+    <param name="notch_interval" type="int" min="2" max="10" gui-text="Interval between notches">2</param>
+    <param name="max_size_flex" type="float" min="200.0" max="100000.0" gui-text="Limit length of flex band">1000.0</param>
+    <param name="Mode_Debug" type="bool" gui-text="Debugging information output">true</param>
+    <effect>
+        <object-type>all</object-type>
+        <effects-menu>
+          <submenu name="KM-LASER">
+              <submenu name="Boxes"/>
+          </submenu>
+        </effects-menu>
+    </effect>
+    <script>
+        <command location="inx" interpreter="python">km_box_flexpath.py</command>
+    </script>
+</inkscape-extension>

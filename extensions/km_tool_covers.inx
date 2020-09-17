@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+   <name>GENERATE: TOOL COVERS</name>
+   <id>org.knoxmakers.tool_covers</id>
+   <param name="tabs" type="notebook">
+      <page name="parameters" gui-text="Basic parameters">
+         <param name="title_base" type="description">base</param>
+         <param name="w1" type="float" min="1" max="200" indent="2" gui-text="Width of tip (w1)[mm]">20</param>
+         <param name="w2" type="float" min="2" max="200" indent="2" gui-text="Maximum width (w2)[mm]">40</param>
+         <param name="h1" type="float" min="1" max="200" indent="2" gui-text="Tip length (h1)[mm]">40</param>
+         <param name="h2" type="float" min="1" max="200" indent="2" gui-text="Length other than tip (h2)[mm]">20</param>
+         <param name="title_base" type="description">band</param>
+         <param name="bw" type="float" min="1" max="30" indent="2" gui-text="Band width (bw)[mm]">15</param>
+         <param name="bl" type="float" min="1" max="90" indent="2" gui-text="Band length (bl)[mm]">30</param>
+         <param name="title_base" type="description">fastener</param>
+         <param name="dia1" type="float" min="1" max="50" indent="2" gui-text="Fastener female diameter (dia1)[mm]">10</param>
+         <param name="dia2" type="float" min="1" max="50" indent="2" gui-text="Fastener male diameter (dia2)[mm]">10</param>
+         <param name="title_nuishiro" type="description">margin and needle hole</param>
+         <param name="d1" type="float" min="1" max="5" indent="2" gui-text="Sew it up (d1)[mm]">3</param>
+         <param name="d2" type="float" min="1" max="10" indent="2" gui-text="Needle hole spacing (d2)[mm]">3</param>
+      </page>
+      <page name="details" gui-text="Detailed parameters">
+         <param name="title_base" type="description">band</param>
+         <param name="bf" type="float" min="0.1" max="1" indent="2" gui-text="curve coefficient (bf)">0.7</param>
+         <param name="title_nuishiro" type="description">needle hole</param>
+         <param name="needle_w" type="float" min="0.5" max="4" indent="2" gui-text="Acupoint width (needle_w)[mm]">1</param>
+         <param name="needle_h" type="float" min="0.5" max="4" indent="2" gui-text="Height of the needle hole (needle_h)[mm]">1</param>
+         <param name="needle_tf" type="float" min="-2" max="2" indent="2" gui-text="Needle slope coefficient (needle_tf)">1</param>
+         <param name="needle_corner_rotation" type="bool" indent="2" gui-text="Angle Tilt Adjustment">true</param>
+      </page>
+      <page name="about" gui-text="PliersCover - about">
+         <param name="version" type="description" xml:space="preserve">PiersCover Inkscape extension
+
+Version 0.92
+
+by Yoichi Tanibayashi
+
+https://ytani01.github.io/PliersCover/
+      </param>
+      </page>
+   </param>
+   <effect needs-live-preview="true">
+      <object-type>all</object-type>
+      <effects-menu>
+        <submenu name="KM-LASER">
+        </submenu>
+      </effects-menu>
+   </effect>
+   <script>
+      <command location="inx" interpreter="python">km_tool_covers.py</command>
+   </script>
+</inkscape-extension>

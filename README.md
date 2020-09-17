@@ -1,38 +1,32 @@
 KM-Laser Bundle
 ===============
 ```diff
-- FOR INKSCAPE VERSIONS 0.91 OR EARLIER SEE THE BRANCH pre_0.92
+- This repository is for Inkscape 1.0+
+- Branches exist for previous versions.
 ```
 
 A bundle of Inkscape extensions useful for Laser Cutting/Engraving.
-
-This bundle is meant primarily for the use of the Knox Makers members on the Knox Makers laser cutter but might be useful to others.  If you are using this for your own laser there are likely preset values that you will need to edit the settings in kmlaser_presets.py.
-
 
 ===
 
 __Installation__
 
-Copy all the files from `extensions` and `palettes` to their respective Inkscape directories and then restart Inkscape.
+Copy all the files from `extensions` to the respective Inkscape directories and then restart Inkscape.
 
 Linux:
 ```
 $HOME/.config/inkscape/extensions
-$HOME/.config/inkscape/palettes
 ```
 
 Mac:
 ```
 /Applications/Inkscape.app/Contents/Resources/share/inkscape/extensions
-/Applications/Inkscape.app/Contents/Resources/share/inkscape/palettes
 
 Alternatively, try the following locations:
 $HOME/.config/inkscape/extensions
-$HOME/.config/inkscape/palettes
 
 If you installed Inkscape using Homebrew, use the following locations:
 /usr/local/Cellar/inkscape/0.92.1/share/inkscape/extensions
-/usr/local/Cellar/inkscape/0.92.1/share/inkscape/palettes
 
 Note: Replace 0.92.1 above with the version number of your Inkscape installation
 ```
@@ -43,17 +37,24 @@ Windows:
 (Program files)\Inkscape\share\palettes\
 ```
 
-=== 
+===
 
 A big thanks go out to the following projects that were either included or were the base for the KM Laser Bundle:
 
-Gcodetools
-http://www.cnc-club.ru/gcodetools
+Evil Mad Scientist
+https://github.com/evil-mad
 
-Eggbot and Hershey Text
-https://code.google.com/p/eggbotcode/downloads/
+MarioVoigt / Fablab Chemnitz
+https://gitea.fablabchemnitz.de/MarioVoigt
 
-Tabbed Box Maker
-http://www.keppel.demon.co.uk/111000/111000.html
+thierry7100
+https://github.com/thierry7100/
 
-For Git Class Demo
+Mark Schafer
+https://github.com/Neon22/inkscape-jigsaw
+
+Mark Endicott
+https://github.com/drphonon
+
+Yoichi Tanibayashi
+https://github.com/ytani01
