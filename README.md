@@ -39,7 +39,7 @@ Windows:
 
 ===
 
-A big thanks go out to the following projects that were either included or were the base for the KM Laser Bundle:
+A big thanks go out to the following People/Orgs that were either included or were the base for the KM Laser Bundle:
 
 Evil Mad Scientist
 https://github.com/evil-mad
