@@ -13,28 +13,14 @@ __Installation__
 
 Copy all the files from `extensions` to the respective Inkscape directories and then restart Inkscape.
 
-Linux:
+Linux or Mac:
 ```
-$HOME/.config/inkscape/extensions
-```
-
-Mac:
-```
-/Applications/Inkscape.app/Contents/Resources/share/inkscape/extensions
-
-Alternatively, try the following locations:
-$HOME/.config/inkscape/extensions
-
-If you installed Inkscape using Homebrew, use the following locations:
-/usr/local/Cellar/inkscape/0.92.1/share/inkscape/extensions
-
-Note: Replace 0.92.1 above with the version number of your Inkscape installation
+~/.config/inkscape/extensions
 ```
 
 Windows:
 ```
-(Program files)\Inkscape\share\extensions\
-(Program files)\Inkscape\share\palettes\
+C:\Users\%USERNAME%\AppData\Roaming\inkscape\extensions
 ```
 
 ===
