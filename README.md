@@ -11,11 +11,22 @@ A bundle of Inkscape extensions useful for Laser Cutting/Engraving.
 
 __Installation__
 
-Copy all the files from `extensions` to the respective Inkscape directories and then restart Inkscape.
+Copy all the files from `extensions` to the respective Inkscape
+directories and then restart Inkscape.
+
+To find the correct location, start Inkscape and check in the menu
+under Preferences -> System -> User extensions.
+
+The following are common values:
 
 Linux or Mac:
 ```
 ~/.config/inkscape/extensions
+```
+
+MacOS Catalina with Inkscape 1.0:
+```
+~/Library/Application\ Support/org.inkscape.Inkscape/config/inkscape/extensions
 ```
 
 Windows:
