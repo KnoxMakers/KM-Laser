@@ -19,12 +19,12 @@ under Preferences -> System -> User extensions.
 
 The following are common values:
 
-Linux or Mac:
+Linux:
 ```
 ~/.config/inkscape/extensions
 ```
 
-MacOS Catalina with Inkscape 1.0:
+MacOS:
 ```
 ~/Library/Application\ Support/org.inkscape.Inkscape/config/inkscape/extensions
 ```
