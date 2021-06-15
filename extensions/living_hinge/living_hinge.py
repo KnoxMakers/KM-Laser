@@ -483,10 +483,10 @@ class LivingHingeEffect(inkex.EffectExtension):
             for elem in self.svg.selected.values():
                 # Determine width and height based on the selected object's bounding box.
                 bbox = elem.bounding_box()
-                self.options.width = bbox.width
-                self.options.height = bbox.height
-                x = bbox.x.minimum
-                y = bbox.y.minimum
+                self.options.width = self.svg.unittouu(bbox.width)
+                self.options.height = self.svg.unittouu(bbox.height)
+                x = self.svg.unittouu(bbox.x.minimum)
+                y = self.svg.unittouu(bbox.y.minimum)
                 draw_one(x, y)
 
 
