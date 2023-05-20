@@ -1051,7 +1051,7 @@ Evil Mad Scientist Laboratories
         p_style = {'stroke-width': width_string}
 
         the_transform = Transform(translate=(offset + h_offset, vertoffset + v_offset))
-        the_transform *= scale_transform
+        the_transform @= scale_transform
 
         if path_string is not None:
             path_element = parent.add(PathElement())
@@ -1292,7 +1292,7 @@ Evil Mad Scientist Laboratories
 
             # First apply the current matrix transform to this node's tranform
             _matrix = node.transform
-            mat_new = Transform(mat_current) * Transform(_matrix)
+            mat_new = Transform(mat_current) @ Transform(_matrix)
 
             if isinstance(node, Group):
 
@@ -1859,7 +1859,7 @@ Evil Mad Scientist Laboratories
                 #End cases A & B. Apply transform to text/flowroot object:
 
                 if(transform is not None):
-                    result = Transform(transform) * the_transform
+                    result = Transform(transform) @ the_transform
                 else:
                     result = the_transform
 
