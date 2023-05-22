@@ -153,7 +153,7 @@ class Generator(object):
         link = self.canvas.add(inkex.PathElement())
         link.update(
             **{"style": style, "inkscape:label": "lattice", "d": path_command})
-        #link.description("%s hinge %s" % (self.name, self.parameter_text()))
+        link.desc = "%s hinge %s" % (self.name, self.parameter_text())
 
 
 class StraightLatticeGenerator(Generator):
@@ -483,11 +483,9 @@ class LivingHingeEffect(inkex.EffectExtension):
             for elem in self.svg.selected.values():
                 # Determine width and height based on the selected object's bounding box.
                 bbox = elem.bounding_box()
-                self.options.width = self.svg.unittouu(bbox.width)
-                self.options.height = self.svg.unittouu(bbox.height)
-                x = self.svg.unittouu(bbox.x.minimum)
-                y = self.svg.unittouu(bbox.y.minimum)
-                draw_one(x, y)
+                self.options.width = bbox.width
+                self.options.height = bbox.height
+                draw_one(bbox.x.minimum, bbox.y.minimum)
 
 
 # Create effect instance and apply it.
