@@ -2,15 +2,15 @@
 
 # These two lines are only needed if you don't put the script directly into
 # the installation directory
-from simplestyle import *
-import inkex
 import sys
 
 sys.path.append("/usr/share/inkscape/extensions")
 
 # We will use the inkex module with the predefined Effect base class.
+import inkex
 
 # The simplestyle module provides functions for style parsing.
+from simplestyle import *
 
 
 cut_colour = '#ff0000'
@@ -51,44 +51,43 @@ class Generator(object):
         # Handle length
         hl = cr/2
         path_command = (
-            'm %f,%f l %f,%f c %f,%f %f,%f %f,%f'
-            'l %f,%f c %f,%f %f,%f %f,%f '
-            'l %f,%f c %f,%f %f,%f %f,%f '
-            'l %f,%f c %f,%f %f,%f %f,%f ') % (
-            cr, 0,
+                'm %f,%f l %f,%f c %f,%f %f,%f %f,%f'
+                'l %f,%f c %f,%f %f,%f %f,%f '
+                'l %f,%f c %f,%f %f,%f %f,%f '
+                'l %f,%f c %f,%f %f,%f %f,%f ') % (
+                cr, 0,
 
-            self.width - 2*cr, 0,
+                self.width - 2*cr, 0,
 
-            hl, 0,
-            cr, cr-hl,
-            cr, cr,
+                hl, 0,
+                cr, cr-hl,
+                cr, cr,
 
-            0, self.height - 2*cr + 1.5*sp,
+                0, self.height - 2*cr + 1.5*sp,
 
-            0, cr/2,
-            0-cr+hl, cr,
-            0-cr, cr,
+                0, cr/2,
+                0-cr+hl, cr,
+                0-cr, cr,
 
-            0-self.width + 2*cr, 0,
+                0-self.width + 2*cr, 0,
 
-            0-hl, 0,
-            0-cr, 0-cr+hl,
-            0-cr, 0-cr,
+                0-hl, 0,
+                0-cr, 0-cr+hl,
+                0-cr, 0-cr,
 
-            0, 0-self.height - 1.5*sp + 2*cr,
+                0, 0-self.height - 1.5*sp + 2*cr,
 
-            0, 0-hl,
-            cr-hl, 0-cr,
-            cr, 0-cr
-        )
+                0, 0-hl,
+                cr-hl, 0-cr,
+                cr, 0-cr
+                )
 
         style = {
             "stroke": cut_colour,
             "stroke-width": str(self.stroke_width),
             "fill": "none",
         }
-        border.update(
-            **{"style": style, "inkscape:label": "lattice_border", "d": path_command})
+        border.update(**{"style": style, "inkscape:label": "lattice_border", "d": path_command})
 
         c = self.canvas.add(inkex.Circle(
             style=str(inkex.Style(style)),
@@ -99,42 +98,42 @@ class Generator(object):
         self.y += sp
 
         text_style = {
-            'fill': engrave_colour,
-            'font-size': '9px',
-            'font-family': 'sans-serif',
-            'text-anchor': 'middle',
-            'text-align': 'center',
-        }
+                'fill': engrave_colour,
+                'font-size': '9px',
+                'font-family': 'sans-serif',
+                'text-anchor': 'middle',
+                'text-align': 'center',
+                }
         text = self.canvas.add(
-            inkex.TextElement(
-                style=str(inkex.Style(text_style)),
-                x=str(self.x + self.width/2),
-                y=str(self.y - sp/2)))
+                inkex.TextElement(
+                    style=str(inkex.Style(text_style)),
+                    x=str(self.x + self.width/2),
+                    y=str(self.y - sp/2)))
         text.text = "Style: %s" % self.name
 
         text_style['font-size'] = "3px"
         text = self.canvas.add(
-            inkex.TextElement(
-                style=str(inkex.Style(text_style)),
-                x=str(self.x + self.width/2),
-                y=str(self.y - sp/4)))
+                inkex.TextElement(
+                    style=str(inkex.Style(text_style)),
+                    x=str(self.x + self.width/2),
+                    y=str(self.y - sp/4)))
         text.text = self.parameter_text()
 
         text = self.canvas.add(
-            inkex.TextElement(
-                style=str(inkex.Style(text_style)),
-                x=str(self.x + self.width/2),
-                y=str(self.y + self.height + sp/4)))
+                inkex.TextElement(
+                    style=str(inkex.Style(text_style)),
+                    x=str(self.x + self.width/2),
+                    y=str(self.y +self.height + sp/4)))
         text.text = "https://github.com/buxtronix/living-hinge"
 
     def generate(self, swatch):
         if swatch:
             self.draw_swatch()
         # Round width/height to integer number of patterns.
-        self.e_length = self.width / \
-            max(round(self.width / self.e_length), 1.0)
-        self.e_height = self.height / \
-            max(round(self.height / self.e_height), 1.0)
+        x_patterns = int(max(round(self.width / self.e_length), 1))
+        y_patterns = int(max(round(self.height / self.e_height), 1))
+        self.e_length = self.width / x_patterns
+        self.e_height = self.height / y_patterns
         self.prerender()
         style = {
             "stroke": cut_colour,
@@ -143,16 +142,15 @@ class Generator(object):
         }
         path_command = ""
         y = self.y
-        while y < self.y + self.height:
+        for _ in range (y_patterns):
             x = self.x
-            while x < self.x + self.width:
+            for _ in range(x_patterns):
                 path_command = "%s %s " % (path_command, self.draw_one(x, y))
                 x += self.e_length
             y += self.e_height
 
         link = self.canvas.add(inkex.PathElement())
-        link.update(
-            **{"style": style, "inkscape:label": "lattice", "d": path_command})
+        link.update(**{"style": style, "inkscape:label": "lattice", "d": path_command})
         link.desc = "%s hinge %s" % (self.name, self.parameter_text())
 
 
@@ -269,7 +267,7 @@ class DiamondLatticeGenerator(Generator):
         # Right
         self.fixed_commands = "%s m %f,%f c %f,%f %f,%f %f,%f c %f,%f %f,%f %f,%f " % (
             self.fixed_commands,
-            w * 0.1, h * 0.75,
+            w * 0.1, h *0.75,
 
             0 - hhl, 0,
             (0 - w * 0.4) + ehhl,  0 - h / 4 + vhl,
@@ -357,8 +355,8 @@ class WavyLatticeGenerator(Generator):
             w / 10, h,  # Control 2
             w * 0.25, h,  # Curve down.
 
-            w * 0.075,  # End horiz line.
-        )
+            w * 0.075, # End horiz line.
+        ) 
 
 
 class LivingHingeEffect(inkex.EffectExtension):
@@ -369,18 +367,13 @@ class LivingHingeEffect(inkex.EffectExtension):
     def add_arguments(self, pars):
         pars.add_argument("--tab", help="Bend pattern to generate")
         pars.add_argument("--unit", help="Units for dimensions")
-        pars.add_argument("--swatch", type=inkex.Boolean,
-                          help="Draw as a swatch card")
+        pars.add_argument("--swatch", type=inkex.Boolean, help="Draw as a swatch card")
 
-        pars.add_argument("--width", type=float, default=300,
-                          help="Width of pattern")
-        pars.add_argument("--height", type=float,
-                          default=100, help="Height of pattern")
+        pars.add_argument("--width", type=float, default=300, help="Width of pattern")
+        pars.add_argument("--height", type=float, default=100, help="Height of pattern")
 
-        pars.add_argument("--sl_length", type=int,
-                          default=20, help="Length of links")
-        pars.add_argument("--sl_gap", type=float,
-                          default=0.5, help="Gap between links")
+        pars.add_argument("--sl_length", type=int, default=20, help="Length of links")
+        pars.add_argument("--sl_gap", type=float, default=0.5, help="Gap between links")
         pars.add_argument(
             "--sl_spacing", type=float, default=20, help="Spacing of links"
         )
@@ -395,14 +388,12 @@ class LivingHingeEffect(inkex.EffectExtension):
             "--dl_spacing", type=float, default=4, help="Spacing of diamonds"
         )
 
-        pars.add_argument("--cl_length", type=float,
-                          default=24, help="Length of combs")
+        pars.add_argument("--cl_length", type=float, default=24, help="Length of combs")
         pars.add_argument(
             "--cl_spacing", type=float, default=6, help="Spacing of combs"
         )
 
-        pars.add_argument("--wl_length", type=int,
-                          default=20, help="Length of links")
+        pars.add_argument("--wl_length", type=int, default=20, help="Length of links")
         pars.add_argument(
             "--wl_interval", type=int, default=30, help="Interval between links"
         )
@@ -472,8 +463,7 @@ class LivingHingeEffect(inkex.EffectExtension):
                     self.convertmm(self.options.wl_spacing),
                 )
             else:
-                inkex.errormsg(
-                    _("Select a valid pattern tab before rendering."))
+                inkex.errormsg(_("Select a valid pattern tab before rendering."))
                 return
             generator.generate(self.options.swatch)
 
@@ -483,9 +473,11 @@ class LivingHingeEffect(inkex.EffectExtension):
             for elem in self.svg.selected.values():
                 # Determine width and height based on the selected object's bounding box.
                 bbox = elem.bounding_box()
-                self.options.width = bbox.width
+                self.options.width = bbox.width 
                 self.options.height = bbox.height
-                draw_one(bbox.x.minimum, bbox.y.minimum)
+                x = bbox.x.minimum
+                y = bbox.y.minimum
+                draw_one(x, y)
 
 
 # Create effect instance and apply it.
